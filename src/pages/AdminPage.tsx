@@ -154,9 +154,18 @@ export default function AdminPage() {
         {activeTab === 'products' && (
           <ProductsTab
             products={products}
-            onAdd={async (p) => { await addProduct(p); showToast('Товар добавлен'); }}
-            onUpdate={async (id, data) => { await updateProduct(id, data); showToast('Товар обновлён'); }}
-            onDelete={async (id) => { await deleteProduct(id); showToast('Товар удалён'); }}
+            onAdd={async (p) => { 
+              try { await addProduct(p); showToast('Товар добавлен'); }
+              catch (e: any) { showToast('Ошибка: ' + e.message, 'error'); }
+            }}
+            onUpdate={async (id, data) => { 
+              try { await updateProduct(id, data); showToast('Товар обновлён'); }
+              catch (e: any) { showToast('Ошибка: ' + e.message, 'error'); }
+            }}
+            onDelete={async (id) => { 
+              try { await deleteProduct(id); showToast('Товар удалён'); }
+              catch (e: any) { showToast('Ошибка: ' + e.message, 'error'); }
+            }}
             editProduct={editProduct}
             setEditProduct={setEditProduct}
             showForm={showForm}

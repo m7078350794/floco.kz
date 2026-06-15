@@ -169,61 +169,39 @@ export const useProductStore = create<ProductState>()((set, get) => ({
   },
 
   addProduct: async (product) => {
-    try {
-      if (!supabase) throw new Error('Supabase is not configured');
+    if (!supabase) throw new Error('Supabase is not configured');
 
-      const dbData = mapProductToDb(product);
-      const { data, error } = await supabase.from('products').insert(dbData).select().single();
-      
-      if (error) throw error;
-      
-      if (data) {
-        set((state) => ({ products: [...state.products, mapDbToProduct(data)] }));
-      }
-    } catch (error) {
-      console.error('Failed to add product:', error);
-      // Optimistic fallback for demo without DB setup
-      set((state) => ({ products: [...state.products, { ...product, id: Date.now() } as Product] }));
+    const dbData = mapProductToDb(product);
+    const { data, error } = await supabase.from('products').insert(dbData).select().single();
+    
+    if (error) throw new Error(error.message);
+    
+    if (data) {
+      set((state) => ({ products: [...state.products, mapDbToProduct(data)] }));
     }
   },
 
   updateProduct: async (id, data) => {
-    try {
-      if (!supabase) throw new Error('Supabase is not configured');
+    if (!supabase) throw new Error('Supabase is not configured');
 
-      const dbData = mapProductToDb(data);
-      const { error } = await supabase.from('products').update(dbData).eq('id', id);
-      
-      if (error) throw error;
+    const dbData = mapProductToDb(data);
+    const { error } = await supabase.from('products').update(dbData).eq('id', id);
+    
+    if (error) throw new Error(error.message);
 
-      set((state) => ({
-        products: state.products.map((p) => (p.id === id ? { ...p, ...data } : p)),
-      }));
-    } catch (error) {
-      console.error('Failed to update product:', error);
-      // Optimistic fallback for demo
-      set((state) => ({
-        products: state.products.map((p) => (p.id === id ? { ...p, ...data } : p)),
-      }));
-    }
+    set((state) => ({
+      products: state.products.map((p) => (p.id === id ? { ...p, ...data } : p)),
+    }));
   },
 
   deleteProduct: async (id) => {
-    try {
-      if (!supabase) throw new Error('Supabase is not configured');
+    if (!supabase) throw new Error('Supabase is not configured');
 
-      const { error } = await supabase.from('products').delete().eq('id', id);
-      if (error) throw error;
+    const { error } = await supabase.from('products').delete().eq('id', id);
+    if (error) throw new Error(error.message);
 
-      set((state) => ({
-        products: state.products.filter((p) => p.id !== id),
-      }));
-    } catch (error) {
-      console.error('Failed to delete product:', error);
-      // Optimistic fallback for demo
-      set((state) => ({
-        products: state.products.filter((p) => p.id !== id),
-      }));
-    }
+    set((state) => ({
+      products: state.products.filter((p) => p.id !== id),
+    }));
   },
 }));

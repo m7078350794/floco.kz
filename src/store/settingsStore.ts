@@ -81,34 +81,20 @@ export const useSettingsStore = create<SettingsState>()((set, get) => ({
   },
 
   updateSettings: async (data) => {
-    try {
-      if (!supabase) {
-        set((state) => ({
-          settings: state.settings ? { ...state.settings, ...data } : null,
-        }));
-        return;
-      }
+    if (!supabase) throw new Error('Supabase is not configured');
+    const { error } = await supabase.from('settings').update({
+      whatsapp_phone: data.whatsappPhone,
+      shop_address: data.shopAddress,
+      working_hours: data.workingHours,
+      delivery_info: data.deliveryInfo,
+      updated_at: new Date().toISOString(),
+    }).eq('id', 1);
 
-      const dbData: any = {};
-      if (data.whatsappPhone) dbData.whatsapp_phone = data.whatsappPhone;
-      if (data.instagramUrl) dbData.instagram_url = data.instagramUrl;
-      if (data.shopName) dbData.shop_name = data.shopName;
-      if (data.shopAddress) dbData.shop_address = data.shopAddress;
-      if (data.shopCity) dbData.shop_city = data.shopCity;
-      if (data.workingHours) dbData.working_hours = data.workingHours;
-      if (data.deliveryInfo) dbData.delivery_info = data.deliveryInfo;
+    if (error) throw new Error(error.message);
 
-      if (Object.keys(dbData).length > 0) {
-        const { error } = await supabase.from('settings').update(dbData).eq('id', 1);
-        if (error) throw error;
-      }
-
-      set((state) => ({
-        settings: state.settings ? { ...state.settings, ...data } : null,
-      }));
-    } catch (error) {
-      console.error('Failed to update settings:', error);
-    }
+    set((state) => ({
+      settings: state.settings ? { ...state.settings, ...data } : null,
+    }));
   },
 
   checkSession: async () => {
