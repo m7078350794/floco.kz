@@ -281,7 +281,7 @@ function ProductFormContent({
   onSave: (data: any) => Promise<void>;
   onCancel: () => void;
 }) {
-  const { register, handleSubmit, formState: { errors }, watch } = useForm<z.infer<typeof productSchema>>({
+  const { register, handleSubmit, formState: { errors }, watch, setValue } = useForm<z.infer<typeof productSchema>>({
     resolver: zodResolver(productSchema),
     defaultValues: {
       name: product?.name || '',
@@ -298,6 +298,40 @@ function ProductFormContent({
       inStock: product?.inStock ?? true,
     }
   });
+
+  const [isUploading, setIsUploading] = useState(false);
+  const currentImage = watch('image');
+
+  const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    try {
+      setIsUploading(true);
+      if (!isSupabaseConfigured || !supabase) throw new Error('Supabase is not configured');
+
+      const fileExt = file.name.split('.').pop();
+      const fileName = `${Math.random().toString(36).substring(2)}.${fileExt}`;
+      const filePath = `public/${fileName}`;
+
+      const { error: uploadError } = await supabase.storage
+        .from('product-images')
+        .upload(filePath, file);
+
+      if (uploadError) throw uploadError;
+
+      const { data: { publicUrl } } = supabase.storage
+        .from('product-images')
+        .getPublicUrl(filePath);
+
+      setValue('image', publicUrl, { shouldValidate: true });
+      showToast('Изображение загружено!');
+    } catch (error: any) {
+      showToast('Ошибка загрузки: ' + error.message, 'error');
+    } finally {
+      setIsUploading(false);
+    }
+  };
 
   const onSubmit = async (data: z.infer<typeof productSchema>) => {
     // Auto-generate slug if empty
@@ -363,7 +397,36 @@ function ProductFormContent({
 
       <Textarea label="Описание" {...register('description')} rows={3} id="prod-desc" />
       <Input label="Состав (через запятую)" {...register('composition')} id="prod-comp" />
-      <Input label="URL изображения *" {...register('image')} error={errors.image?.message} id="prod-img" />
+      
+      <div className="space-y-1.5">
+        <label className="block text-sm font-medium text-text-secondary">Изображение *</label>
+        <div className="flex items-center gap-4">
+          {currentImage && (
+            <img 
+              src={currentImage} 
+              alt="Preview" 
+              className="w-16 h-16 object-cover rounded-[var(--radius-sm)] border border-border"
+            />
+          )}
+          <div className="flex-grow">
+            <input 
+              type="file" 
+              accept="image/*" 
+              onChange={handleImageUpload}
+              disabled={isUploading}
+              className="block w-full text-sm text-text-secondary
+                file:mr-4 file:py-2 file:px-4
+                file:rounded-full file:border-0
+                file:text-sm file:font-medium
+                file:bg-navy/10 file:text-navy
+                hover:file:bg-navy/20 transition-colors
+                cursor-pointer disabled:opacity-50"
+            />
+          </div>
+        </div>
+        {isUploading && <p className="text-xs text-navy animate-pulse">Загрузка изображения...</p>}
+        {errors.image && <p className="text-sm text-error">{errors.image.message}</p>}
+      </div>
 
       <div className="flex flex-wrap gap-4 pt-2">
         <label className="flex items-center gap-2 cursor-pointer">
