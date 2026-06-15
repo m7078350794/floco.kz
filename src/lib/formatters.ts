@@ -5,9 +5,16 @@
 /**
  * Format price in Kazakhstani Tenge
  */
-export function formatPrice(price: number | null): string {
+export function formatPrice(price: number | null, country: string = 'kz'): string {
   if (price === null) return 'Уточнить стоимость';
-  return price.toLocaleString('ru-KZ') + ' ₸';
+  switch (country) {
+    case 'uz': return price.toLocaleString('ru-UZ') + ' UZS';
+    case 'kg': return price.toLocaleString('ru-KG') + ' KGS';
+    case 'tj': return price.toLocaleString('ru-TJ') + ' TJS';
+    case 'kz':
+    default:
+      return price.toLocaleString('ru-KZ') + ' ₸';
+  }
 }
 
 /**

@@ -7,6 +7,8 @@ import { motion } from 'framer-motion';
 import { useCartStore } from '@/store/cartStore';
 import { useSettingsStore } from '@/store/settingsStore';
 import { useRegionStore } from '@/store/regionStore';
+import { getProductPrice } from '@/lib/price';
+import { sendOrderWhatsApp } from '@/lib/whatsapp';
 import { formatPrice } from '@/lib/formatters';
 import { Input, Textarea } from '@/components/ui/Input';
 
@@ -27,11 +29,12 @@ type CheckoutForm = z.infer<typeof checkoutSchema>;
 export default function CheckoutPage() {
   const navigate = useNavigate();
   const { items, getTotal, clearCart } = useCartStore();
+  const currentCountry = useRegionStore((s) => s.country);
   const city = useRegionStore((s) => s.city);
   const settings = useSettingsStore((s) => s.getSettingsForCity(city));
   const [isSubmitting, setIsSubmitting] = useState(false);
 
-  const total = getTotal();
+  const total = getTotal(currentCountry);
   const deliveryPrice = total >= 15000 ? 0 : 2000;
   const finalTotal = total + deliveryPrice;
 
@@ -60,48 +63,18 @@ export default function CheckoutPage() {
   const onSubmit = async (data: CheckoutForm) => {
     setIsSubmitting(true);
     try {
-      // Format message for WhatsApp
-      const orderId = Math.random().toString(36).substring(2, 8).toUpperCase();
-      let message = `*Новый заказ #${orderId}* 🌸\n\n`;
-      
-      message += `*Заказчик:*\n`;
-      message += `Имя: ${data.customerName}\n`;
-      message += `Телефон: ${data.customerPhone}\n\n`;
-      
-      if (!data.isAnonymous && data.recipientName) {
-        message += `*Получатель:*\n`;
-        message += `Имя: ${data.recipientName}\n`;
-        message += `Телефон: ${data.recipientPhone}\n\n`;
-      }
-
-      if (data.isAnonymous) {
-        message += `🤫 *Анонимная доставка*\n\n`;
-      }
-      
-      message += `*Доставка:*\n`;
-      message += `Адрес: ${data.deliveryAddress}\n`;
-      message += `Дата: ${data.deliveryDate}\n`;
-      message += `Время: ${data.deliveryTime}\n\n`;
-      
-      message += `*Состав заказа:*\n`;
-      items.forEach((item, index) => {
-        message += `${index + 1}. ${item.product.name} x${item.quantity} = ${formatPrice((item.product.price ?? 0) * item.quantity)}\n`;
-      });
-      
-      message += `\n*Сумма заказа:* ${formatPrice(total)}\n`;
-      message += `*Доставка:* ${deliveryPrice === 0 ? 'Бесплатно' : formatPrice(deliveryPrice)}\n`;
-      message += `*ИТОГО к оплате:* ${formatPrice(finalTotal)}\n`;
-
-      if (data.comment) {
-        message += `\n*Комментарий:* ${data.comment}`;
-      }
+      const orderData: import('@/types').OrderData = {
+        name: data.customerName,
+        phone: data.customerPhone,
+        deliveryDate: data.deliveryDate,
+        deliveryTime: data.deliveryTime,
+        address: data.deliveryAddress,
+        cardText: data.comment || '',
+        isAnonymous: data.isAnonymous,
+      };
 
       // Encode and open WhatsApp
-      const phone = settings?.whatsappPhone || '77001234567';
-      const encodedMessage = encodeURIComponent(message);
-      const whatsappUrl = `https://wa.me/${phone}?text=${encodedMessage}`;
-      
-      window.open(whatsappUrl, '_blank');
+      sendOrderWhatsApp(settings?.whatsappPhone || '77001234567', orderData, items, total, deliveryPrice, currentCountry);
       
       // Clear cart and redirect
       clearCart();
@@ -342,7 +315,7 @@ export default function CheckoutPage() {
                       <h4 className="text-sm font-medium text-primary truncate">{item.product.name}</h4>
                       <div className="flex items-center justify-between mt-1 text-sm text-text-secondary">
                         <span>{item.quantity} шт.</span>
-                        <span className="font-medium text-primary">{formatPrice((item.product.price ?? 0) * item.quantity)}</span>
+                        <span className="font-medium text-primary">{formatPrice((getProductPrice(item.product, currentCountry) ?? 0) * item.quantity, currentCountry)}</span>
                       </div>
                     </div>
                   </div>
@@ -352,17 +325,17 @@ export default function CheckoutPage() {
               <div className="border-t border-border pt-4 space-y-3 mb-6 text-sm">
                 <div className="flex justify-between text-text-secondary">
                   <span>Товары ({items.length})</span>
-                  <span>{formatPrice(total)}</span>
+                  <span>{formatPrice(total, currentCountry)}</span>
                 </div>
                 <div className="flex justify-between text-text-secondary">
                   <span>Доставка</span>
-                  <span>{deliveryPrice === 0 ? 'Бесплатно' : formatPrice(deliveryPrice)}</span>
+                  <span>{deliveryPrice === 0 ? 'Бесплатно' : formatPrice(deliveryPrice, currentCountry)}</span>
                 </div>
               </div>
 
               <div className="border-t border-primary pt-4 mb-8 flex items-end justify-between">
                 <span className="font-medium text-primary">Итого к оплате</span>
-                <span className="text-2xl font-semibold text-primary">{formatPrice(finalTotal)}</span>
+                <span className="text-xl font-semibold text-primary">{formatPrice(getTotal(currentCountry), currentCountry)}</span>
               </div>
 
               <button

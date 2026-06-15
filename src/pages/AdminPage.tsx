@@ -263,8 +263,14 @@ function ProductsTab({
 const productSchema = z.object({
   name: z.string().min(1, 'Введите название'),
   slug: z.string().optional(),
-  price: z.string().min(1, 'Введите цену'),
-  oldPrice: z.string().optional(),
+  price_kz: z.string().min(1, 'Введите цену KZT'),
+  price_uz: z.string().optional(),
+  price_kg: z.string().optional(),
+  price_tj: z.string().optional(),
+  oldPrice_kz: z.string().optional(),
+  oldPrice_uz: z.string().optional(),
+  oldPrice_kg: z.string().optional(),
+  oldPrice_tj: z.string().optional(),
   category: z.string().min(1, 'Выберите категорию'),
   description: z.string().optional(),
   composition: z.string().optional(),
@@ -288,8 +294,14 @@ function ProductFormContent({
     defaultValues: {
       name: product?.name || '',
       slug: product?.slug || '',
-      price: product?.price?.toString() || '',
-      oldPrice: product?.oldPrice?.toString() || '',
+      price_kz: product?.prices?.['kz']?.toString() || product?.price?.toString() || '',
+      price_uz: product?.prices?.['uz']?.toString() || '',
+      price_kg: product?.prices?.['kg']?.toString() || '',
+      price_tj: product?.prices?.['tj']?.toString() || '',
+      oldPrice_kz: product?.oldPrices?.['kz']?.toString() || product?.oldPrice?.toString() || '',
+      oldPrice_uz: product?.oldPrices?.['uz']?.toString() || '',
+      oldPrice_kg: product?.oldPrices?.['kg']?.toString() || '',
+      oldPrice_tj: product?.oldPrices?.['tj']?.toString() || '',
       category: product?.category || 'mono',
       description: product?.description || '',
       composition: product?.composition?.join(', ') || '',
@@ -346,8 +358,20 @@ function ProductFormContent({
   const submitWrapper = async (data: z.infer<typeof productSchema>) => {
     const submitData = {
       ...data,
-      price: Number(data.price),
-      oldPrice: data.oldPrice ? Number(data.oldPrice) : null,
+      prices: {
+        kz: data.price_kz ? Number(data.price_kz) : null,
+        uz: data.price_uz ? Number(data.price_uz) : null,
+        kg: data.price_kg ? Number(data.price_kg) : null,
+        tj: data.price_tj ? Number(data.price_tj) : null,
+      },
+      oldPrices: {
+        kz: data.oldPrice_kz ? Number(data.oldPrice_kz) : null,
+        uz: data.oldPrice_uz ? Number(data.oldPrice_uz) : null,
+        kg: data.oldPrice_kg ? Number(data.oldPrice_kg) : null,
+        tj: data.oldPrice_tj ? Number(data.oldPrice_tj) : null,
+      },
+      price: data.price_kz ? Number(data.price_kz) : null,
+      oldPrice: data.oldPrice_kz ? Number(data.oldPrice_kz) : null,
       slug: data.slug || data.name.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)+/g, ''),
       composition: data.composition ? data.composition.split(',').map((s) => s.trim()) : [],
     };
@@ -359,9 +383,24 @@ function ProductFormContent({
       <Input label="Название *" {...register('name')} error={errors.name?.message} id="prod-name" />
       <Input label="Slug (URL)" {...register('slug')} placeholder="my-product" id="prod-slug" />
       
-      <div className="grid grid-cols-2 gap-4">
-        <Input label="Цена *" type="number" {...register('price')} error={errors.price?.message} id="prod-price" />
-        <Input label="Старая цена" type="number" {...register('oldPrice')} id="prod-oldprice" />
+      <div className="space-y-3 p-4 border border-border rounded-[var(--radius-card)] bg-cream">
+        <h4 className="font-medium text-navy text-sm">Цены для разных стран</h4>
+        <div className="grid grid-cols-2 gap-4">
+          <Input label="Цена (Казахстан - KZT) *" type="number" {...register('price_kz')} error={errors.price_kz?.message} id="prod-price-kz" />
+          <Input label="Старая цена (KZT)" type="number" {...register('oldPrice_kz')} id="prod-oldprice-kz" />
+        </div>
+        <div className="grid grid-cols-2 gap-4">
+          <Input label="Цена (Узбекистан - UZS)" type="number" {...register('price_uz')} id="prod-price-uz" />
+          <Input label="Старая цена (UZS)" type="number" {...register('oldPrice_uz')} id="prod-oldprice-uz" />
+        </div>
+        <div className="grid grid-cols-2 gap-4">
+          <Input label="Цена (Кыргызстан - KGS)" type="number" {...register('price_kg')} id="prod-price-kg" />
+          <Input label="Старая цена (KGS)" type="number" {...register('oldPrice_kg')} id="prod-oldprice-kg" />
+        </div>
+        <div className="grid grid-cols-2 gap-4">
+          <Input label="Цена (Таджикистан - TJS)" type="number" {...register('price_tj')} id="prod-price-tj" />
+          <Input label="Старая цена (TJS)" type="number" {...register('oldPrice_tj')} id="prod-oldprice-tj" />
+        </div>
       </div>
 
       <div className="grid grid-cols-2 gap-4">

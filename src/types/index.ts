@@ -8,6 +8,8 @@ export interface Product {
   slug: string;
   price: number | null;
   oldPrice?: number | null;
+  prices: Record<string, number | null>;
+  oldPrices: Record<string, number | null>;
   category: CategorySlug;
   description: string;
   composition: string[];

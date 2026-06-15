@@ -48,7 +48,7 @@ export default function ContactsPage() {
                   <div>
                     <p className="text-sm text-text-secondary mb-1">Instagram</p>
                     <a href={settings.instagramUrl} target="_blank" rel="noopener noreferrer" className="text-lg font-medium text-primary hover:text-accent-dark transition-colors">
-                      @floco.ala
+                      {settings.instagramUrl.includes('instagram.com/') ? '@' + settings.instagramUrl.split('instagram.com/')[1].replace('/', '') : 'Instagram'}
                     </a>
                   </div>
                 </div>

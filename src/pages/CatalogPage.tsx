@@ -6,6 +6,8 @@ import { useCartDrawer } from '@/components/cart/CartDrawerProvider';
 import { formatPrice } from '@/lib/formatters';
 import { Link } from 'react-router-dom';
 import type { Product } from '@/types';
+import { useRegionStore } from '@/store/regionStore';
+import { getProductPrice, getProductOldPrice } from '@/lib/price';
 
 const CATEGORIES = [
   { id: 'all', label: 'Все' },
@@ -17,6 +19,7 @@ const CATEGORIES = [
 
 export default function CatalogPage() {
   const products = useProductStore((s) => s.products);
+  const currentCountry = useRegionStore((s) => s.country);
   const [activeCategory, setActiveCategory] = useState('all');
 
   const filteredProducts = useMemo(() => {
@@ -54,7 +57,7 @@ export default function CatalogPage() {
         {/* Grid */}
         <div className="grid grid-cols-2 lg:grid-cols-3 gap-x-4 gap-y-10 md:gap-x-6 md:gap-y-12">
           {filteredProducts.map((product, index) => (
-            <CatalogCard key={product.id} product={product} index={index} />
+            <CatalogCard key={product.id} product={product} index={index} currentCountry={currentCountry} />
           ))}
         </div>
 
@@ -74,7 +77,7 @@ export default function CatalogPage() {
   );
 }
 
-function CatalogCard({ product, index }: { product: Product; index: number }) {
+function CatalogCard({ product, index, currentCountry }: { product: Product; index: number; currentCountry: string }) {
   const addItem = useCartStore((s) => s.addItem);
   const { open } = useCartDrawer();
 
@@ -104,7 +107,7 @@ function CatalogCard({ product, index }: { product: Product; index: number }) {
               New
             </div>
           )}
-          {product.oldPrice && (
+          {getProductOldPrice(product, currentCountry) && (
             <div className="absolute top-3 left-3 px-3 py-1 bg-error text-white text-[10px] font-bold uppercase tracking-widest rounded-full">
               Sale
             </div>
@@ -126,12 +129,12 @@ function CatalogCard({ product, index }: { product: Product; index: number }) {
             {product.name}
           </h3>
           <div className="flex items-center justify-center gap-2 mt-1.5">
-            <span className="font-semibold text-primary">
-              {formatPrice(product.price)}
+            <span className="text-sm md:text-base font-semibold text-primary">
+              {formatPrice(getProductPrice(product, currentCountry), currentCountry)}
             </span>
-            {product.oldPrice && (
+            {getProductOldPrice(product, currentCountry) && (
               <span className="text-xs text-text-muted line-through">
-                {formatPrice(product.oldPrice)}
+                {formatPrice(getProductOldPrice(product, currentCountry), currentCountry)}
               </span>
             )}
           </div>

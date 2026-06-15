@@ -3,11 +3,14 @@ import { motion } from 'framer-motion';
 import { useProductStore } from '@/store/productStore';
 import { useCartStore } from '@/store/cartStore';
 import { useCartDrawer } from '@/components/cart/CartDrawerProvider';
+import { useRegionStore } from '@/store/regionStore';
+import { getProductPrice, getProductOldPrice } from '@/lib/price';
 import { formatPrice } from '@/lib/formatters';
 import type { Product } from '@/types';
 
 export default function PopularBouquets() {
   const products = useProductStore((s) => s.products);
+  const currentCountry = useRegionStore((s) => s.country);
   const popular = products.filter((p) => p.isPopular && p.inStock).slice(0, 6);
 
   if (popular.length === 0) return null;
@@ -68,6 +71,7 @@ export default function PopularBouquets() {
 
 function ProductCard({ product, index }: { product: Product; index: number }) {
   const addItem = useCartStore((s) => s.addItem);
+  const currentCountry = useRegionStore((s) => s.country);
   const { open } = useCartDrawer();
 
   const handleAddToCart = (e: React.MouseEvent) => {
@@ -100,7 +104,7 @@ function ProductCard({ product, index }: { product: Product; index: number }) {
                 New
               </span>
             )}
-            {product.oldPrice && (
+            {getProductOldPrice(product, currentCountry) && (
               <span className="px-2.5 py-1 bg-error text-white text-[10px] font-semibold uppercase tracking-wider rounded-full">
                 Sale
               </span>
@@ -130,11 +134,11 @@ function ProductCard({ product, index }: { product: Product; index: number }) {
           )}
           <div className="flex items-center gap-2 mt-1.5">
             <span className="text-sm md:text-base font-semibold text-primary">
-              {formatPrice(product.price)}
+              {formatPrice(getProductPrice(product, currentCountry), currentCountry)}
             </span>
-            {product.oldPrice && (
+            {getProductOldPrice(product, currentCountry) && (
               <span className="text-xs text-text-muted line-through">
-                {formatPrice(product.oldPrice)}
+                {formatPrice(getProductOldPrice(product, currentCountry), currentCountry)}
               </span>
             )}
           </div>

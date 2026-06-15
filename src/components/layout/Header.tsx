@@ -159,7 +159,7 @@ export default function Header() {
               {/* Mobile burger */}
               <button
                 onClick={() => setMenuOpen(!menuOpen)}
-                className={`p-2.5 md:hidden transition-colors cursor-pointer ${
+                className={`text-sm font-bold uppercase tracking-wider transition-colors hover:text-primary ${
                   isTransparent ? 'text-white/90' : 'text-primary'
                 }`}
                 id="mobile-menu-btn"

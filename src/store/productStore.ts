@@ -6,6 +6,7 @@ import { create } from 'zustand';
 import type { Product, FilterState, CategorySlug } from '@/types';
 import { isSupabaseConfigured, supabase } from '@/lib/supabase';
 import { useRegionStore } from '@/store/regionStore';
+import { getProductPrice } from '@/lib/price';
 
 interface ProductState {
   products: Product[];
@@ -37,16 +38,18 @@ function mapDbToProduct(row: any): Product {
     description: row.description,
     price: row.price ? Number(row.price) : null,
     oldPrice: row.old_price ? Number(row.old_price) : null,
+    prices: row.prices || {},
+    oldPrices: row.old_prices || {},
     category: row.category as CategorySlug,
-    image: row.image,
-    images: row.gallery || [],
-    composition: row.composition || [],
+    composition: Array.isArray(row.composition) ? row.composition : JSON.parse(row.composition || '[]'),
     size: row.size,
-    isPopular: row.is_featured,
+    image: row.image,
+    images: Array.isArray(row.images) ? row.images : JSON.parse(row.images || '[]'),
+    isPopular: row.is_popular,
     isNew: row.is_new,
     inStock: row.in_stock,
-    tags: row.tags || [],
-    cities: row.cities || ['almaty', 'astana', 'tashkent', 'bishkek', 'dushanbe'],
+    tags: Array.isArray(row.tags) ? row.tags : JSON.parse(row.tags || '[]'),
+    cities: Array.isArray(row.cities) ? row.cities : JSON.parse(row.cities || '["almaty"]'),
   };
 }
 
@@ -58,6 +61,8 @@ function mapProductToDb(p: Partial<Product>): any {
   if (p.description !== undefined) row.description = p.description;
   if (p.price !== undefined) row.price = p.price;
   if (p.oldPrice !== undefined) row.old_price = p.oldPrice;
+  if (p.prices !== undefined) row.prices = p.prices;
+  if (p.oldPrices !== undefined) row.old_prices = p.oldPrices;
   if (p.category !== undefined) row.category = p.category;
   if (p.image !== undefined) row.image = p.image;
   if (p.images !== undefined) row.gallery = p.images;
@@ -137,6 +142,8 @@ export const useProductStore = create<ProductState>()((set, get) => ({
     const currentCity = useRegionStore.getState().city;
     filtered = filtered.filter((p) => p.cities.includes(currentCity));
 
+    const currentCountry = useRegionStore.getState().country;
+    
     // Search
     if (filters.search) {
       const query = filters.search.toLowerCase();
@@ -155,17 +162,17 @@ export const useProductStore = create<ProductState>()((set, get) => ({
 
     // Price range
     filtered = filtered.filter((p) => {
-      const price = p.price ?? 0;
+      const price = getProductPrice(p, currentCountry) ?? 0;
       return price >= filters.priceRange[0] && price <= filters.priceRange[1];
     });
 
     // Sort
     switch (filters.sort) {
       case 'price-asc':
-        filtered.sort((a, b) => (a.price ?? 0) - (b.price ?? 0));
+        filtered.sort((a, b) => (getProductPrice(a, currentCountry) ?? 0) - (getProductPrice(b, currentCountry) ?? 0));
         break;
       case 'price-desc':
-        filtered.sort((a, b) => (b.price ?? 0) - (a.price ?? 0));
+        filtered.sort((a, b) => (getProductPrice(b, currentCountry) ?? 0) - (getProductPrice(a, currentCountry) ?? 0));
         break;
       case 'newest':
         filtered.sort((a, b) => (b.isNew ? 1 : 0) - (a.isNew ? 1 : 0));

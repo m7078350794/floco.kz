@@ -1,9 +1,18 @@
 import { useRef } from 'react';
 import { motion, useInView } from 'framer-motion';
+import { useSettingsStore } from '@/store/settingsStore';
+import { useRegionStore } from '@/store/regionStore';
 
 export default function ContactsSection() {
   const ref = useRef(null);
   const isInView = useInView(ref, { once: true, margin: '-100px' });
+  const city = useRegionStore((s) => s.city);
+  const settings = useSettingsStore((s) => s.getSettingsForCity(city));
+
+  const whatsappLink = settings?.whatsappPhone ? `https://wa.me/${settings.whatsappPhone.replace(/\D/g, '')}` : 'https://wa.me/77001234567';
+  const instagramLink = settings?.instagramUrl || 'https://www.instagram.com/floco.ala/';
+  const workingHours = settings?.workingHours || 'Ежедневно 09:00 — 21:00';
+  const instagramHandle = settings?.instagramUrl ? `@${settings.instagramUrl.split('/').filter(Boolean).pop()}` : '@floco.ala';
 
   return (
     <section className="py-20 md:py-28 bg-surface" id="contacts" ref={ref}>
@@ -27,7 +36,7 @@ export default function ContactsSection() {
           className="grid grid-cols-1 md:grid-cols-3 gap-6"
         >
           <a
-            href="https://wa.me/77001234567"
+            href={whatsappLink}
             target="_blank"
             rel="noopener noreferrer"
             className="flex flex-col items-center p-8 rounded-[var(--radius-card)] bg-cream/50 hover:bg-cream transition-colors duration-300 group"
@@ -42,7 +51,7 @@ export default function ContactsSection() {
           </a>
 
           <a
-            href="https://www.instagram.com/floco.ala/"
+            href={instagramLink}
             target="_blank"
             rel="noopener noreferrer"
             className="flex flex-col items-center p-8 rounded-[var(--radius-card)] bg-cream/50 hover:bg-cream transition-colors duration-300 group"
@@ -53,7 +62,7 @@ export default function ContactsSection() {
               </svg>
             </div>
             <h3 className="font-heading text-lg font-semibold text-navy mb-1">Instagram</h3>
-            <p className="text-sm text-text-secondary">@floco.ala</p>
+            <p className="text-sm text-text-secondary">{instagramHandle}</p>
           </a>
 
           <div className="flex flex-col items-center p-8 rounded-[var(--radius-card)] bg-cream/50">
@@ -63,7 +72,7 @@ export default function ContactsSection() {
               </svg>
             </div>
             <h3 className="font-heading text-lg font-semibold text-navy mb-1">Время работы</h3>
-            <p className="text-sm text-text-secondary">Ежедневно 09:00 — 21:00</p>
+            <p className="text-sm text-text-secondary">{workingHours}</p>
           </div>
         </motion.div>
       </div>

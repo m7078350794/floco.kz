@@ -24,7 +24,7 @@ export default function RegionSelector({ isTransparent }: { isTransparent: boole
     <div className="relative" ref={dropdownRef}>
       <button
         onClick={() => setIsOpen(!isOpen)}
-        className={`flex items-center gap-1 text-sm font-medium tracking-wide transition-colors duration-300 ${
+        className={`flex items-center gap-1 text-sm font-medium tracking-wide uppercase transition-colors duration-300 ${
           isTransparent
             ? 'text-white/80 hover:text-white'
             : 'text-text-secondary hover:text-primary'

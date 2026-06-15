@@ -4,6 +4,7 @@
 
 import type { CartItem, OrderData } from '@/types';
 import { formatPrice } from './formatters';
+import { getProductPrice } from './price';
 
 /**
  * Build the WhatsApp order message
@@ -11,12 +12,14 @@ import { formatPrice } from './formatters';
 export function buildOrderMessage(
   order: OrderData,
   items: CartItem[],
-  total: number
+  total: number,
+  deliveryPrice: number,
+  currentCountry: string
 ): string {
   const itemLines = items
     .map(
       (item) =>
-        `• ${item.product.name} — ${formatPrice(item.product.price)}${item.quantity > 1 ? ` × ${item.quantity}` : ''}${item.comment ? `\n  💬 ${item.comment}` : ''}`
+        `• ${item.product.name} — ${formatPrice(getProductPrice(item.product, currentCountry), currentCountry)}${item.quantity > 1 ? ` × ${item.quantity}` : ''}${item.comment ? `\n  💬 ${item.comment}` : ''}`
     )
     .join('\n');
 
@@ -39,7 +42,7 @@ ${order.isAnonymous ? '\n🙈 *Анонимная доставка*' : ''}
 
 ${itemLines}
 
-💰 *Итого: ${formatPrice(total)}*
+💰 *Итого: ${formatPrice(total + deliveryPrice, currentCountry)}*
 
 Свяжитесь со мной для подтверждения заказа.`;
 
@@ -63,8 +66,10 @@ export function sendOrderWhatsApp(
   phone: string,
   order: OrderData,
   items: CartItem[],
-  total: number
+  total: number,
+  deliveryPrice: number,
+  currentCountry: string
 ): void {
-  const message = buildOrderMessage(order, items, total);
+  const message = buildOrderMessage(order, items, total, deliveryPrice, currentCountry);
   openWhatsApp(phone, message);
 }

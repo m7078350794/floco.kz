@@ -5,11 +5,14 @@ import { useProductStore } from '@/store/productStore';
 import { useCartStore } from '@/store/cartStore';
 import { useCartDrawer } from '@/components/cart/CartDrawerProvider';
 import { useFavoritesStore } from '@/store/favoritesStore';
+import { useRegionStore } from '@/store/regionStore';
+import { getProductPrice, getProductOldPrice } from '@/lib/price';
 import { formatPrice } from '@/lib/formatters';
 import type { Product } from '@/types';
 
 export default function ProductPage() {
   const { slug } = useParams<{ slug: string }>();
+  const currentCountry = useRegionStore((s) => s.country);
   const navigate = useNavigate();
   const products = useProductStore((s) => s.products);
   const addItem = useCartStore((s) => s.addItem);
@@ -114,11 +117,11 @@ export default function ProductPage() {
             
             <div className="flex items-end gap-3 mb-8">
               <span className="text-2xl md:text-3xl font-semibold text-primary">
-                {formatPrice(product.price)}
+                {formatPrice(getProductPrice(product, currentCountry), currentCountry)}
               </span>
-              {product.oldPrice && (
-                <span className="text-lg md:text-xl text-text-muted line-through mb-1">
-                  {formatPrice(product.oldPrice)}
+              {getProductOldPrice(product, currentCountry) && (
+                <span className="text-base md:text-lg text-text-muted line-through">
+                  {formatPrice(getProductOldPrice(product, currentCountry), currentCountry)}
                 </span>
               )}
             </div>

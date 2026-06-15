@@ -5,6 +5,7 @@
 import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
 import type { CartItem, Product } from '@/types';
+import { getProductPrice } from '@/lib/price';
 
 interface CartState {
   items: CartItem[];
@@ -13,7 +14,7 @@ interface CartState {
   updateQuantity: (productId: number, quantity: number) => void;
   updateComment: (productId: number, comment: string) => void;
   clearCart: () => void;
-  getTotal: () => number;
+  getTotal: (country: string) => number;
   getItemCount: () => number;
 }
 
@@ -63,9 +64,9 @@ export const useCartStore = create<CartState>()(
 
       clearCart: () => set({ items: [] }),
 
-      getTotal: () => {
+      getTotal: (country: string) => {
         return get().items.reduce(
-          (sum, i) => sum + (i.product.price ?? 0) * i.quantity,
+          (sum, i) => sum + (getProductPrice(i.product, country) ?? 0) * i.quantity,
           0
         );
       },

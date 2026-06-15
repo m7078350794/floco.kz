@@ -2,12 +2,15 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { Link } from 'react-router-dom';
 import { useCartStore } from '@/store/cartStore';
 import { useCartDrawer } from './CartDrawerProvider';
+import { useRegionStore } from '@/store/regionStore';
+import { getProductPrice } from '@/lib/price';
 import { formatPrice } from '@/lib/formatters';
 
 export default function CartDrawer() {
   const { isOpen, close } = useCartDrawer();
   const { items, removeItem, updateQuantity, getTotal, getItemCount } = useCartStore();
-  const total = getTotal();
+  const currentCountry = useRegionStore((s) => s.country);
+  const total = getTotal(currentCountry);
   const count = getItemCount();
 
   return (
@@ -82,8 +85,8 @@ export default function CartDrawer() {
                       {/* Info */}
                       <div className="flex-1 min-w-0">
                         <h3 className="text-sm font-medium truncate pr-6">{item.product.name}</h3>
-                        <p className="text-sm font-semibold mt-1">
-                          {formatPrice((item.product.price ?? 0) * item.quantity)}
+                        <p className="font-semibold text-primary">
+                          {formatPrice((getProductPrice(item.product, currentCountry) ?? 0) * item.quantity, currentCountry)}
                         </p>
 
                         {/* Quantity */}
@@ -126,9 +129,9 @@ export default function CartDrawer() {
             {/* Footer */}
             {items.length > 0 && (
               <div className="border-t border-border px-6 py-5 space-y-4">
-                <div className="flex items-center justify-between">
-                  <span className="text-text-secondary">Сумма:</span>
-                  <span className="text-xl font-semibold">{formatPrice(total)}</span>
+                <div className="flex items-center justify-between font-semibold text-lg text-primary mb-6">
+                  <span>Итого</span>
+                  <span>{formatPrice(getTotal(currentCountry), currentCountry)}</span>
                 </div>
                 <Link
                   to="/checkout"
