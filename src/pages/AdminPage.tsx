@@ -273,6 +273,7 @@ const productSchema = z.object({
   isPopular: z.boolean(),
   isNew: z.boolean(),
   inStock: z.boolean(),
+  cities: z.array(z.string()).min(1, 'Выберите хотя бы один город'),
 });
 
 function ProductFormContent({
@@ -297,73 +298,70 @@ function ProductFormContent({
       isPopular: product?.isPopular || false,
       isNew: product?.isNew || false,
       inStock: product?.inStock ?? true,
+      cities: product?.cities || ['almaty', 'astana', 'tashkent', 'bishkek', 'dushanbe'],
     }
   });
 
   const [isUploading, setIsUploading] = useState(false);
   const currentImage = watch('image');
+  const allCities = Object.values(COUNTRIES).flatMap((c: any) => c.cities);
 
   const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
 
+    if (!isSupabaseConfigured || !supabase) {
+      alert('Supabase не настроен. Загрузка недоступна.');
+      return;
+    }
+
     try {
       setIsUploading(true);
-      if (!isSupabaseConfigured || !supabase) throw new Error('Supabase is not configured');
-
+      
       const fileExt = file.name.split('.').pop();
-      const fileName = `${Math.random().toString(36).substring(2)}.${fileExt}`;
-      const filePath = `public/${fileName}`;
+      const fileName = `${Math.random().toString(36).substring(2, 15)}_${Date.now()}.${fileExt}`;
+      const filePath = `${fileName}`;
 
       const { error: uploadError } = await supabase.storage
         .from('product-images')
         .upload(filePath, file);
 
-      if (uploadError) throw uploadError;
+      if (uploadError) {
+        throw uploadError;
+      }
 
       const { data: { publicUrl } } = supabase.storage
         .from('product-images')
         .getPublicUrl(filePath);
 
       setValue('image', publicUrl, { shouldValidate: true });
-      showToast('Изображение загружено!');
     } catch (error: any) {
-      showToast('Ошибка загрузки: ' + error.message, 'error');
+      console.error('Upload error:', error);
+      alert('Ошибка при загрузке картинки: ' + error.message);
     } finally {
       setIsUploading(false);
     }
   };
 
-  const onSubmit = async (data: z.infer<typeof productSchema>) => {
-    // Auto-generate slug if empty
-    const generatedSlug = data.slug || data.name.toLowerCase().replace(/[^a-z0-9]+/g, '-');
-    
-    await onSave({
+  const submitWrapper = async (data: z.infer<typeof productSchema>) => {
+    const submitData = {
       ...data,
-      slug: generatedSlug,
       price: Number(data.price),
       oldPrice: data.oldPrice ? Number(data.oldPrice) : null,
-      composition: data.composition ? data.composition.split(',').map(s => s.trim()).filter(Boolean) : [],
-    });
-  };
-
-  const onInvalid = (errors: any) => {
-    const firstError = Object.values(errors)[0] as any;
-    if (firstError?.message) {
-      import('@/components/ui/Toast').then(({ showToast }) => {
-        showToast('Ошибка заполнения: ' + firstError.message, 'error');
-      });
-    }
+      slug: data.slug || data.name.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)+/g, ''),
+      composition: data.composition ? data.composition.split(',').map((s) => s.trim()) : [],
+    };
+    await onSave(submitData);
   };
 
   return (
-    <form onSubmit={handleSubmit(onSubmit, onInvalid)} className="space-y-4">
+    <form onSubmit={handleSubmit(submitWrapper)} className="space-y-4 pb-20">
       <Input label="Название *" {...register('name')} error={errors.name?.message} id="prod-name" />
-      <Input label="Slug (URL) *" {...register('slug')} error={errors.slug?.message} placeholder="auto-generated" id="prod-slug" />
+      <Input label="Slug (URL)" {...register('slug')} placeholder="my-product" id="prod-slug" />
       
       <div className="grid grid-cols-2 gap-4">
-        <Input label="Цена (₸) *" type="number" {...register('price')} error={errors.price?.message} id="prod-price" />
-        <Input label="Старая цена (₸)" type="number" {...register('oldPrice')} error={errors.oldPrice?.message} id="prod-oldprice" />
+        <Input label="Цена *" type="number" {...register('price')} error={errors.price?.message} id="prod-price" />
+        <Input label="Старая цена" type="number" {...register('oldPrice')} id="prod-oldprice" />
       </div>
 
       <div className="grid grid-cols-2 gap-4">
@@ -394,6 +392,24 @@ function ProductFormContent({
             <option value="XL">XL — Очень большой</option>
           </select>
         </div>
+      </div>
+
+      <div className="space-y-2">
+        <label className="block text-sm font-medium text-text-secondary">Показывать в городах *</label>
+        <div className="flex flex-wrap gap-3 p-3 bg-surface border border-border rounded-lg">
+          {allCities.map((c: any) => (
+            <label key={c.id} className="flex items-center gap-2 cursor-pointer">
+              <input 
+                type="checkbox" 
+                value={c.id}
+                {...register('cities')}
+                className="accent-navy"
+              />
+              <span className="text-sm">{c.name}</span>
+            </label>
+          ))}
+        </div>
+        {errors.cities && <p className="text-sm text-error">{errors.cities.message}</p>}
       </div>
 
       <Textarea label="Описание" {...register('description')} rows={3} id="prod-desc" />

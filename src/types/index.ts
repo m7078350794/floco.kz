@@ -18,6 +18,7 @@ export interface Product {
   isNew?: boolean;
   inStock: boolean;
   tags?: string[];
+  cities: string[];
 }
 
 export type CategorySlug =

@@ -5,6 +5,7 @@
 import { create } from 'zustand';
 import type { Product, FilterState, CategorySlug } from '@/types';
 import { isSupabaseConfigured, supabase } from '@/lib/supabase';
+import { useRegionStore } from '@/store/regionStore';
 
 interface ProductState {
   products: Product[];
@@ -45,6 +46,7 @@ function mapDbToProduct(row: any): Product {
     isNew: row.is_new,
     inStock: row.in_stock,
     tags: row.tags || [],
+    cities: row.cities || ['almaty', 'astana', 'tashkent', 'bishkek', 'dushanbe'],
   };
 }
 
@@ -65,13 +67,18 @@ function mapProductToDb(p: Partial<Product>): any {
   if (p.isNew !== undefined) row.is_new = p.isNew;
   if (p.inStock !== undefined) row.in_stock = p.inStock;
   if (p.tags !== undefined) row.tags = p.tags;
+  if (p.cities !== undefined) row.cities = p.cities;
   return row;
 }
 
 async function loadLocalProducts(): Promise<Product[]> {
   const res = await fetch('/data/products.json');
   if (!res.ok) throw new Error('Failed to load local products');
-  return res.json();
+  const data = await res.json();
+  return data.map((p: any) => ({
+    ...p,
+    cities: p.cities || ['almaty', 'astana', 'tashkent', 'bishkek', 'dushanbe'],
+  }));
 }
 
 export const useProductStore = create<ProductState>()((set, get) => ({
@@ -125,6 +132,10 @@ export const useProductStore = create<ProductState>()((set, get) => ({
   getFilteredProducts: () => {
     const { products, filters } = get();
     let filtered = [...products].filter((p) => p.inStock);
+
+    // City Filter
+    const currentCity = useRegionStore.getState().city;
+    filtered = filtered.filter((p) => p.cities.includes(currentCity));
 
     // Search
     if (filters.search) {
