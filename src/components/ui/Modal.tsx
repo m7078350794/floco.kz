@@ -1,4 +1,5 @@
-import { ReactNode, useEffect } from 'react';
+import { ReactNode, useEffect, useState } from 'react';
+import { createPortal } from 'react-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 
 interface ModalProps {
@@ -17,6 +18,12 @@ const sizeClasses = {
 };
 
 export default function Modal({ isOpen, onClose, title, children, size = 'md' }: ModalProps) {
+  const [mounted, setMounted] = useState(false);
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
+
   useEffect(() => {
     if (isOpen) {
       document.body.style.overflow = 'hidden';
@@ -28,14 +35,15 @@ export default function Modal({ isOpen, onClose, title, children, size = 'md' }:
     };
   }, [isOpen]);
 
-  return (
+  const modalContent = (
     <AnimatePresence>
       {isOpen && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
+        <div className="fixed inset-0 z-[100] flex items-center justify-center p-4">
           <motion.div
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
+            transition={{ duration: 0.2 }}
             className="absolute inset-0 bg-black/40 backdrop-blur-sm"
             onClick={onClose}
           />
@@ -44,10 +52,10 @@ export default function Modal({ isOpen, onClose, title, children, size = 'md' }:
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: 20 }}
             transition={{ duration: 0.2 }}
-            className={`relative w-full ${sizeClasses[size]} bg-surface rounded-[var(--radius-card)] shadow-elevated max-h-[90vh] overflow-hidden`}
+            className={`relative w-full ${sizeClasses[size]} bg-surface rounded-[var(--radius-card)] shadow-elevated max-h-[90vh] overflow-hidden flex flex-col`}
           >
             {title && (
-              <div className="flex items-center justify-between px-6 py-4 border-b border-border">
+              <div className="flex items-center justify-between px-6 py-4 border-b border-border flex-shrink-0">
                 <h2 className="text-xl font-heading font-semibold">{title}</h2>
                 <button
                   onClick={onClose}
@@ -59,7 +67,7 @@ export default function Modal({ isOpen, onClose, title, children, size = 'md' }:
                 </button>
               </div>
             )}
-            <div className="overflow-y-auto max-h-[calc(90vh-80px)] p-6">
+            <div className="overflow-y-auto p-6 flex-grow">
               {children}
             </div>
           </motion.div>
@@ -67,4 +75,8 @@ export default function Modal({ isOpen, onClose, title, children, size = 'md' }:
       )}
     </AnimatePresence>
   );
+
+  if (!mounted) return null;
+
+  return createPortal(modalContent, document.body);
 }
