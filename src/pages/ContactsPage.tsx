@@ -1,7 +1,9 @@
 import { useSettingsStore } from '@/store/settingsStore';
+import { useRegionStore } from '@/store/regionStore';
 
 export default function ContactsPage() {
-  const settings = useSettingsStore((s) => s.settings);
+  const city = useRegionStore((s) => s.city);
+  const settings = useSettingsStore((s) => s.getSettingsForCity(city));
 
   return (
     <div className="pt-24 pb-20 min-h-screen bg-cream">

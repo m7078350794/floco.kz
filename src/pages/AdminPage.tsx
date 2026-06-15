@@ -4,6 +4,7 @@ import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import { useSettingsStore } from '@/store/settingsStore';
+import { COUNTRIES } from '@/store/regionStore';
 import { useProductStore } from '@/store/productStore';
 import { isSupabaseConfigured, supabase } from '@/lib/supabase';
 import type { Product, CategorySlug } from '@/types';
@@ -21,7 +22,7 @@ const loginSchema = z.object({
 
 
 export default function AdminPage() {
-  const { settings, isAdmin, loadSettings, checkSession, logout, updateSettings } = useSettingsStore();
+  const { allSettings, isAdmin, loadSettings, checkSession, logout, updateSettings } = useSettingsStore();
   const { products, loadProducts, addProduct, updateProduct, deleteProduct } = useProductStore();
   const [activeTab, setActiveTab] = useState<'products' | 'settings'>('products');
   const [editProduct, setEditProduct] = useState<Product | null>(null);
@@ -159,8 +160,8 @@ export default function AdminPage() {
           />
         )}
 
-        {activeTab === 'settings' && settings && (
-          <SettingsTab settings={settings} onUpdate={updateSettings} />
+        {activeTab === 'settings' && (
+          <SettingsTab allSettings={useSettingsStore.getState().allSettings} onUpdate={useSettingsStore.getState().updateSettings} />
         )}
       </div>
     </div>
@@ -463,54 +464,74 @@ const settingsSchema = z.object({
 });
 
 function SettingsTab({
-  settings, onUpdate,
+  allSettings, onUpdate,
 }: {
-  settings: NonNullable<ReturnType<typeof useSettingsStore.getState>['settings']>;
-  onUpdate: (data: Partial<typeof settings>) => Promise<void>;
+  allSettings: Record<string, any>;
+  onUpdate: (cityId: string, data: any) => Promise<void>;
 }) {
+  const allCities = Object.values(COUNTRIES).flatMap((c: any) => c.cities);
+
+  return (
+    <div className="space-y-8 pb-8">
+      {allCities.map((city: any) => {
+        const citySettings = allSettings[city.id] || allSettings['almaty'] || {};
+        return (
+          <SettingsBlock 
+            key={city.id} 
+            city={city} 
+            settings={citySettings} 
+            onUpdate={(data: any) => onUpdate(city.id, data)} 
+          />
+        );
+      })}
+    </div>
+  );
+}
+
+function SettingsBlock({ city, settings, onUpdate }: any) {
   const { register, handleSubmit, formState: { errors, isSubmitting } } = useForm<z.infer<typeof settingsSchema>>({
     resolver: zodResolver(settingsSchema),
     defaultValues: {
-      whatsappPhone: settings.whatsappPhone,
-      shopAddress: settings.shopAddress,
-      workingHours: settings.workingHours,
-      deliveryInfo: settings.deliveryInfo,
+      whatsappPhone: settings.whatsappPhone || '',
+      shopAddress: settings.shopAddress || '',
+      workingHours: settings.workingHours || '',
+      deliveryInfo: settings.deliveryInfo || '',
     }
   });
 
   const onSubmit = async (data: z.infer<typeof settingsSchema>) => {
     await onUpdate(data);
-    showToast('Настройки сохранены');
+    import('@/components/ui/Toast').then(({ showToast }) => showToast(`Настройки (${city.name}) сохранены`));
   };
 
   return (
     <div className="max-w-xl">
-      <form onSubmit={handleSubmit(onSubmit)} className="bg-surface rounded-[var(--radius-card)] p-6 space-y-4">
-        <h2 className="font-heading text-xl font-semibold text-navy mb-2">Настройки магазина</h2>
+      <form onSubmit={handleSubmit(onSubmit)} className="bg-surface rounded-[var(--radius-card)] p-6 space-y-4 shadow-sm border border-border/50">
+        <h2 className="font-heading text-xl font-semibold text-navy mb-4 border-b border-border pb-2">Настройки магазина — {city.name}</h2>
         <Input
           label="Номер WhatsApp"
           {...register('whatsappPhone')}
           error={errors.whatsappPhone?.message}
           placeholder="77001234567"
-          id="set-phone"
+          id={`set-phone-${city.id}`}
         />
         <Input
           label="Адрес магазина"
           {...register('shopAddress')}
           error={errors.shopAddress?.message}
-          id="set-addr"
+          id={`set-addr-${city.id}`}
         />
         <Input
           label="Часы работы"
           {...register('workingHours')}
           error={errors.workingHours?.message}
-          id="set-hours"
+          id={`set-hours-${city.id}`}
         />
         <Input
           label="Информация о доставке"
           {...register('deliveryInfo')}
           error={errors.deliveryInfo?.message}
-          id="set-deliv"
+          id={`set-deliv-${city.id}`}
         />
         <Button type="submit" fullWidth disabled={isSubmitting}>
           {isSubmitting ? 'Сохранение...' : 'Сохранить настройки'}

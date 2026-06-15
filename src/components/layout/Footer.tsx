@@ -1,8 +1,10 @@
 import { Link } from 'react-router-dom';
 import { useSettingsStore } from '@/store/settingsStore';
+import { useRegionStore } from '@/store/regionStore';
 
 export default function Footer() {
-  const settings = useSettingsStore((s) => s.settings);
+  const city = useRegionStore((s) => s.city);
+  const settings = useSettingsStore((s) => s.getSettingsForCity(city));
 
   return (
     <footer className="bg-surface border-t border-border mt-auto">

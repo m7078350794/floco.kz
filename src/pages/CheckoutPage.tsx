@@ -6,6 +6,7 @@ import { z } from 'zod';
 import { motion } from 'framer-motion';
 import { useCartStore } from '@/store/cartStore';
 import { useSettingsStore } from '@/store/settingsStore';
+import { useRegionStore } from '@/store/regionStore';
 import { formatPrice } from '@/lib/formatters';
 import { Input, Textarea } from '@/components/ui/Input';
 
@@ -26,7 +27,8 @@ type CheckoutForm = z.infer<typeof checkoutSchema>;
 export default function CheckoutPage() {
   const navigate = useNavigate();
   const { items, getTotal, clearCart } = useCartStore();
-  const settings = useSettingsStore((s) => s.settings);
+  const city = useRegionStore((s) => s.city);
+  const settings = useSettingsStore((s) => s.getSettingsForCity(city));
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   const total = getTotal();

@@ -8,13 +8,14 @@ import { isSupabaseConfigured, supabase } from '@/lib/supabase';
 import { getStorageItem } from '@/lib/storage';
 
 interface SettingsState {
-  settings: Settings | null;
+  allSettings: Record<string, Settings>;
   isLoading: boolean;
   isAdmin: boolean;
   loadSettings: () => Promise<void>;
-  updateSettings: (data: Partial<Settings>) => Promise<void>;
+  updateSettings: (cityId: string, data: Partial<Settings>) => Promise<void>;
   checkSession: () => Promise<void>;
   logout: () => Promise<void>;
+  getSettingsForCity: (cityId: string) => Settings | null;
 }
 
 // Helper to map DB row to Settings interface
@@ -28,7 +29,7 @@ function mapDbToSettings(row: any, categories: any[]): Settings {
     workingHours: row.working_hours,
     deliveryInfo: row.delivery_info,
     adminPin: '', // Deprecated in favor of Supabase Auth
-    categories: categories.map((c) => ({
+    categories: categories.map((c: any) => ({
       slug: c.slug,
       name: c.name,
       description: '',
@@ -47,40 +48,60 @@ async function loadLocalSettings(): Promise<Settings | null> {
 }
 
 export const useSettingsStore = create<SettingsState>()((set, get) => ({
-  settings: null,
+  allSettings: {},
   isLoading: false,
   isAdmin: false,
+
+  getSettingsForCity: (cityId: string) => {
+    return get().allSettings[cityId] || get().allSettings['almaty'] || null;
+  },
 
   loadSettings: async () => {
     set({ isLoading: true });
     try {
       if (!isSupabaseConfigured || !supabase) {
         const settings = await loadLocalSettings();
-        set({ settings, isLoading: false });
+        if (settings) {
+          set({ allSettings: { almaty: settings }, isLoading: false });
+        } else {
+          set({ isLoading: false });
+        }
         return;
       }
 
       const [settingsRes, categoriesRes] = await Promise.all([
-        supabase.from('settings').select('*').eq('id', 1).single(),
+        supabase.from('settings').select('*'),
         supabase.from('categories').select('*'),
       ]);
 
       if (settingsRes.error) throw settingsRes.error;
 
-      if (settingsRes.data) {
-        set({ settings: mapDbToSettings(settingsRes.data, categoriesRes.data || []), isLoading: false });
+      if (settingsRes.data && settingsRes.data.length > 0) {
+        const newAllSettings: Record<string, Settings> = {};
+        settingsRes.data.forEach((row) => {
+          newAllSettings[row.city_id || 'almaty'] = mapDbToSettings(row, categoriesRes.data || []);
+        });
+        set({ allSettings: newAllSettings, isLoading: false });
       } else {
         const settings = await loadLocalSettings();
-        set({ settings, isLoading: false });
+        if (settings) {
+          set({ allSettings: { almaty: settings }, isLoading: false });
+        } else {
+          set({ isLoading: false });
+        }
       }
     } catch (error) {
       console.error('Failed to load settings from Supabase, loading fallback', error);
       const settings = await loadLocalSettings();
-      set({ settings, isLoading: false });
+      if (settings) {
+        set({ allSettings: { almaty: settings }, isLoading: false });
+      } else {
+        set({ isLoading: false });
+      }
     }
   },
 
-  updateSettings: async (data) => {
+  updateSettings: async (cityId, data) => {
     if (!supabase) throw new Error('Supabase is not configured');
     const { error } = await supabase.from('settings').update({
       whatsapp_phone: data.whatsappPhone,
@@ -88,12 +109,15 @@ export const useSettingsStore = create<SettingsState>()((set, get) => ({
       working_hours: data.workingHours,
       delivery_info: data.deliveryInfo,
       updated_at: new Date().toISOString(),
-    }).eq('id', 1);
+    }).eq('city_id', cityId);
 
     if (error) throw new Error(error.message);
 
     set((state) => ({
-      settings: state.settings ? { ...state.settings, ...data } : null,
+      allSettings: {
+        ...state.allSettings,
+        [cityId]: state.allSettings[cityId] ? { ...state.allSettings[cityId], ...data } : data as Settings,
+      }
     }));
   },
 
