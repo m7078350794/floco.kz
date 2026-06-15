@@ -19,20 +19,6 @@ const loginSchema = z.object({
   password: z.string().min(6, 'Пароль должен быть не менее 6 символов'),
 });
 
-const productSchema = z.object({
-  name: z.string().min(1, 'Введите название'),
-  slug: z.string().min(1, 'Введите slug'),
-  price: z.string().min(1, 'Введите цену'),
-  oldPrice: z.string().optional(),
-  category: z.string().min(1, 'Выберите категорию'),
-  description: z.string().optional(),
-  composition: z.string().optional(),
-  size: z.enum(['S', 'M', 'L', 'XL']),
-  image: z.string().url('Введите корректный URL изображения'),
-  isPopular: z.boolean(),
-  isNew: z.boolean(),
-  inStock: z.boolean(),
-});
 
 export default function AdminPage() {
   const { settings, isAdmin, loadSettings, checkSession, logout, updateSettings } = useSettingsStore();
@@ -273,6 +259,21 @@ function ProductsTab({
    Product Form (React Hook Form + Zod)
    ============================================================ */
 
+const productSchema = z.object({
+  name: z.string().min(1, 'Введите название'),
+  slug: z.string().optional(),
+  price: z.string().min(1, 'Введите цену'),
+  oldPrice: z.string().optional(),
+  category: z.string().min(1, 'Выберите категорию'),
+  description: z.string().optional(),
+  composition: z.string().optional(),
+  size: z.enum(['S', 'M', 'L', 'XL']),
+  image: z.string().min(1, 'Введите URL или путь к изображению'),
+  isPopular: z.boolean(),
+  isNew: z.boolean(),
+  inStock: z.boolean(),
+});
+
 function ProductFormContent({
   product, onSave, onCancel,
 }: {
@@ -299,8 +300,12 @@ function ProductFormContent({
   });
 
   const onSubmit = async (data: z.infer<typeof productSchema>) => {
+    // Auto-generate slug if empty
+    const generatedSlug = data.slug || data.name.toLowerCase().replace(/[^a-z0-9]+/g, '-');
+    
     await onSave({
       ...data,
+      slug: generatedSlug,
       price: Number(data.price),
       oldPrice: data.oldPrice ? Number(data.oldPrice) : null,
       composition: data.composition ? data.composition.split(',').map(s => s.trim()).filter(Boolean) : [],
