@@ -1,0 +1,42 @@
+{
+  "whatsappPhone": "77001234567",
+  "instagramUrl": "https://www.instagram.com/floco.ala/",
+  "shopName": "FLOCO",
+  "shopAddress": "г. Алматы",
+  "shopCity": "Алматы",
+  "workingHours": "Ежедневно 09:00 — 21:00",
+  "deliveryInfo": "Бесплатная доставка по Алматы при заказе от 25 000 ₸",
+  "adminPin": "1234",
+  "categories": [
+    {
+      "slug": "mono",
+      "name": "Монобукеты",
+      "description": "Элегантные букеты из одного вида цветов"
+    },
+    {
+      "slug": "author",
+      "name": "Авторские букеты",
+      "description": "Уникальные композиции от наших флористов"
+    },
+    {
+      "slug": "box",
+      "name": "Композиции в коробке",
+      "description": "Цветы в стильных шляпных коробках — визитная карточка FLOCO"
+    },
+    {
+      "slug": "peony-roses",
+      "name": "Пионовидные розы",
+      "description": "Роскошные пионовидные розы с нежным ароматом"
+    },
+    {
+      "slug": "wedding",
+      "name": "Свадебные букеты",
+      "description": "Букеты невесты и свадебное оформление"
+    },
+    {
+      "slug": "gifts",
+      "name": "Подарочные наборы",
+      "description": "Цветы с подарками — сладости, игрушки, декор"
+    }
+  ]
+}

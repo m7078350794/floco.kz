@@ -1,0 +1,216 @@
+// ============================================================
+// FLOCO — Product Store
+// ============================================================
+
+import { create } from 'zustand';
+import type { Product, FilterState, CategorySlug } from '@/types';
+import { supabase } from '@/lib/supabase';
+
+interface ProductState {
+  products: Product[];
+  isLoading: boolean;
+  error: string | null;
+  filters: FilterState;
+  loadProducts: () => Promise<void>;
+  setFilter: (key: keyof FilterState, value: string | number | [number, number] | CategorySlug | 'all') => void;
+  resetFilters: () => void;
+  getFilteredProducts: () => Product[];
+  addProduct: (product: Omit<Product, 'id'>) => Promise<void>;
+  updateProduct: (id: number, data: Partial<Product>) => Promise<void>;
+  deleteProduct: (id: number) => Promise<void>;
+}
+
+const defaultFilters: FilterState = {
+  search: '',
+  category: 'all',
+  priceRange: [0, 200000],
+  sort: 'popular',
+};
+
+// Helper to map DB row to Product interface
+function mapDbToProduct(row: any): Product {
+  return {
+    id: row.id,
+    name: row.name,
+    slug: row.slug,
+    description: row.description,
+    price: row.price ? Number(row.price) : null,
+    oldPrice: row.old_price ? Number(row.old_price) : null,
+    category: row.category as CategorySlug,
+    image: row.image,
+    images: row.gallery || [],
+    composition: row.composition || [],
+    size: row.size,
+    isPopular: row.is_featured,
+    isNew: row.is_new,
+    inStock: row.in_stock,
+    tags: row.tags || [],
+  };
+}
+
+// Helper to map Product interface to DB row
+function mapProductToDb(p: Partial<Product>): any {
+  const row: any = {};
+  if (p.name !== undefined) row.name = p.name;
+  if (p.slug !== undefined) row.slug = p.slug;
+  if (p.description !== undefined) row.description = p.description;
+  if (p.price !== undefined) row.price = p.price;
+  if (p.oldPrice !== undefined) row.old_price = p.oldPrice;
+  if (p.category !== undefined) row.category = p.category;
+  if (p.image !== undefined) row.image = p.image;
+  if (p.images !== undefined) row.gallery = p.images;
+  if (p.composition !== undefined) row.composition = p.composition;
+  if (p.size !== undefined) row.size = p.size;
+  if (p.isPopular !== undefined) row.is_featured = p.isPopular;
+  if (p.isNew !== undefined) row.is_new = p.isNew;
+  if (p.inStock !== undefined) row.in_stock = p.inStock;
+  if (p.tags !== undefined) row.tags = p.tags;
+  return row;
+}
+
+export const useProductStore = create<ProductState>()((set, get) => ({
+  products: [],
+  isLoading: false,
+  error: null,
+  filters: defaultFilters,
+
+  loadProducts: async () => {
+    set({ isLoading: true, error: null });
+    try {
+      // 1. Fetch from Supabase
+      const { data, error } = await supabase.from('products').select('*');
+      
+      if (error) {
+        // Fallback to local JSON if DB fails/is not configured
+        console.warn('Failed to fetch from Supabase, loading local JSON fallback', error);
+        const res = await fetch('/data/products.json');
+        if (!res.ok) throw new Error('Failed to load local products');
+        const localData = await res.json();
+        set({ products: localData, isLoading: false });
+        return;
+      }
+
+      if (data && data.length > 0) {
+        set({ products: data.map(mapDbToProduct), isLoading: false });
+      } else {
+        // If DB is empty, load from JSON as initial seed
+        const res = await fetch('/data/products.json');
+        if (res.ok) {
+          const localData = await res.json();
+          set({ products: localData, isLoading: false });
+        } else {
+          set({ products: [], isLoading: false });
+        }
+      }
+    } catch (error) {
+      set({ error: (error as Error).message, isLoading: false });
+    }
+  },
+
+  setFilter: (key, value) => {
+    set((state) => ({
+      filters: { ...state.filters, [key]: value },
+    }));
+  },
+
+  resetFilters: () => set({ filters: defaultFilters }),
+
+  getFilteredProducts: () => {
+    const { products, filters } = get();
+    let filtered = [...products].filter((p) => p.inStock);
+
+    // Search
+    if (filters.search) {
+      const query = filters.search.toLowerCase();
+      filtered = filtered.filter(
+        (p) =>
+          p.name.toLowerCase().includes(query) ||
+          p.description.toLowerCase().includes(query) ||
+          (p.tags && p.tags.some((t) => t.toLowerCase().includes(query)))
+      );
+    }
+
+    // Category
+    if (filters.category !== 'all') {
+      filtered = filtered.filter((p) => p.category === filters.category);
+    }
+
+    // Price range
+    filtered = filtered.filter((p) => {
+      const price = p.price ?? 0;
+      return price >= filters.priceRange[0] && price <= filters.priceRange[1];
+    });
+
+    // Sort
+    switch (filters.sort) {
+      case 'price-asc':
+        filtered.sort((a, b) => (a.price ?? 0) - (b.price ?? 0));
+        break;
+      case 'price-desc':
+        filtered.sort((a, b) => (b.price ?? 0) - (a.price ?? 0));
+        break;
+      case 'newest':
+        filtered.sort((a, b) => (b.isNew ? 1 : 0) - (a.isNew ? 1 : 0));
+        break;
+      case 'popular':
+      default:
+        filtered.sort((a, b) => (b.isPopular ? 1 : 0) - (a.isPopular ? 1 : 0));
+        break;
+    }
+
+    return filtered;
+  },
+
+  addProduct: async (product) => {
+    try {
+      const dbData = mapProductToDb(product);
+      const { data, error } = await supabase.from('products').insert(dbData).select().single();
+      
+      if (error) throw error;
+      
+      if (data) {
+        set((state) => ({ products: [...state.products, mapDbToProduct(data)] }));
+      }
+    } catch (error) {
+      console.error('Failed to add product:', error);
+      // Optimistic fallback for demo without DB setup
+      set((state) => ({ products: [...state.products, { ...product, id: Date.now() } as Product] }));
+    }
+  },
+
+  updateProduct: async (id, data) => {
+    try {
+      const dbData = mapProductToDb(data);
+      const { error } = await supabase.from('products').update(dbData).eq('id', id);
+      
+      if (error) throw error;
+
+      set((state) => ({
+        products: state.products.map((p) => (p.id === id ? { ...p, ...data } : p)),
+      }));
+    } catch (error) {
+      console.error('Failed to update product:', error);
+      // Optimistic fallback for demo
+      set((state) => ({
+        products: state.products.map((p) => (p.id === id ? { ...p, ...data } : p)),
+      }));
+    }
+  },
+
+  deleteProduct: async (id) => {
+    try {
+      const { error } = await supabase.from('products').delete().eq('id', id);
+      if (error) throw error;
+
+      set((state) => ({
+        products: state.products.filter((p) => p.id !== id),
+      }));
+    } catch (error) {
+      console.error('Failed to delete product:', error);
+      // Optimistic fallback for demo
+      set((state) => ({
+        products: state.products.filter((p) => p.id !== id),
+      }));
+    }
+  },
+}));
