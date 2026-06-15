@@ -1,14 +1,9 @@
 import { createClient } from '@supabase/supabase-js';
 
-const supabaseUrl = import.meta.env.VITE_SUPABASE_URL?.trim() || '';
-const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY?.trim() || '';
+// Public credentials — safe to expose in client code.
+// Security is enforced via Supabase Row Level Security (RLS).
+const supabaseUrl = 'https://kvsswktjebgvjvbyrjob.supabase.co';
+const supabaseAnonKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imt2c3N3a3RqZWJndmp2Ynlyam9iIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODE1MDg2NTIsImV4cCI6MjA5NzA4NDY1Mn0.mML7w5gmqzG0NQCpotHNJSDHUL2GZfjbTq4qAm5ZQYs';
 
-export const isSupabaseConfigured = Boolean(supabaseUrl && supabaseAnonKey);
-
-if (!isSupabaseConfigured) {
-  console.warn('Supabase URL or Anon Key is missing. Check your environment variables.');
-}
-
-export const supabase = isSupabaseConfigured
-  ? createClient(supabaseUrl, supabaseAnonKey)
-  : null;
+export const isSupabaseConfigured = true;
+export const supabase = createClient(supabaseUrl, supabaseAnonKey);
