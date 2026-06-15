@@ -105,6 +105,7 @@ export const useSettingsStore = create<SettingsState>()((set, get) => ({
     if (!supabase) throw new Error('Supabase is not configured');
     const { error } = await supabase.from('settings').update({
       whatsapp_phone: data.whatsappPhone,
+      instagram_url: data.instagramUrl,
       shop_address: data.shopAddress,
       working_hours: data.workingHours,
       delivery_info: data.deliveryInfo,

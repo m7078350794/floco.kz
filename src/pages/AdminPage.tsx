@@ -477,6 +477,7 @@ const settingsSchema = z.object({
   shopAddress: z.string().min(1, 'Обязательное поле'),
   workingHours: z.string().min(1, 'Обязательное поле'),
   deliveryInfo: z.string().min(1, 'Обязательное поле'),
+  instagramUrl: z.string().url('Введите корректную ссылку').or(z.string().length(0)).optional(),
 });
 
 function SettingsTab({
@@ -486,20 +487,38 @@ function SettingsTab({
   onUpdate: (cityId: string, data: any) => Promise<void>;
 }) {
   const allCities = Object.values(COUNTRIES).flatMap((c: any) => c.cities);
+  const [selectedCityId, setSelectedCityId] = useState<string | null>(null);
+
+  if (selectedCityId) {
+    const city = allCities.find(c => c.id === selectedCityId);
+    const citySettings = allSettings[selectedCityId] || allSettings['almaty'] || {};
+    return (
+      <div className="space-y-4 pb-8">
+        <Button variant="outline" onClick={() => setSelectedCityId(null)}>
+          ← Назад к списку городов
+        </Button>
+        <SettingsBlock 
+          key={city.id} 
+          city={city} 
+          settings={citySettings} 
+          onUpdate={(data: any) => onUpdate(city.id, data)} 
+        />
+      </div>
+    );
+  }
 
   return (
-    <div className="space-y-8 pb-8">
-      {allCities.map((city: any) => {
-        const citySettings = allSettings[city.id] || allSettings['almaty'] || {};
-        return (
-          <SettingsBlock 
-            key={city.id} 
-            city={city} 
-            settings={citySettings} 
-            onUpdate={(data: any) => onUpdate(city.id, data)} 
-          />
-        );
-      })}
+    <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4 pb-8">
+      {allCities.map((city: any) => (
+        <button
+          key={city.id}
+          onClick={() => setSelectedCityId(city.id)}
+          className="bg-surface hover:bg-cream transition-colors p-6 rounded-xl border border-border flex flex-col items-center justify-center gap-2 shadow-sm"
+        >
+          <span className="font-heading text-lg text-navy">Настройки</span>
+          <span className="text-text-secondary">{city.name}</span>
+        </button>
+      ))}
     </div>
   );
 }
@@ -512,6 +531,7 @@ function SettingsBlock({ city, settings, onUpdate }: any) {
       shopAddress: settings.shopAddress || '',
       workingHours: settings.workingHours || '',
       deliveryInfo: settings.deliveryInfo || '',
+      instagramUrl: settings.instagramUrl || '',
     }
   });
 
@@ -530,6 +550,13 @@ function SettingsBlock({ city, settings, onUpdate }: any) {
           error={errors.whatsappPhone?.message}
           placeholder="77001234567"
           id={`set-phone-${city.id}`}
+        />
+        <Input
+          label="Ссылка на Instagram"
+          {...register('instagramUrl')}
+          error={errors.instagramUrl?.message}
+          placeholder="https://instagram.com/floco.kz"
+          id={`set-inst-${city.id}`}
         />
         <Input
           label="Адрес магазина"
