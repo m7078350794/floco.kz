@@ -5,7 +5,7 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import { useSettingsStore } from '@/store/settingsStore';
 import { useProductStore } from '@/store/productStore';
-import { supabase } from '@/lib/supabase';
+import { isSupabaseConfigured, supabase } from '@/lib/supabase';
 import type { Product, CategorySlug } from '@/types';
 import { formatPrice } from '@/lib/formatters';
 import { Input, Textarea } from '@/components/ui/Input';
@@ -53,17 +53,27 @@ export default function AdminPage() {
   }, [checkSession, loadSettings, loadProducts]);
 
   const onLogin = async (data: z.infer<typeof loginSchema>) => {
+    if (!supabase) {
+      showToast('Supabase не настроен. Добавьте переменные окружения в Netlify.', 'error');
+      return;
+    }
+
     setIsLoggingIn(true);
-    const { error } = await supabase.auth.signInWithPassword({
-      email: data.email,
-      password: data.password,
-    });
-    setIsLoggingIn(false);
-    
-    if (error) {
-      showToast('Ошибка авторизации: ' + error.message, 'error');
-    } else {
-      showToast('Успешный вход');
+    try {
+      const { error } = await supabase.auth.signInWithPassword({
+        email: data.email,
+        password: data.password,
+      });
+
+      if (error) {
+        showToast('Ошибка авторизации: ' + error.message, 'error');
+      } else {
+        showToast('Успешный вход');
+      }
+    } catch (error) {
+      showToast('Ошибка авторизации: ' + (error as Error).message, 'error');
+    } finally {
+      setIsLoggingIn(false);
     }
   };
 
@@ -82,6 +92,11 @@ export default function AdminPage() {
               </svg>
             </div>
             <h1 className="font-heading text-2xl font-semibold text-navy text-center mb-6">Админ-панель</h1>
+            {!isSupabaseConfigured && (
+              <p className="mb-4 rounded-xl border border-error/20 bg-error/10 px-4 py-3 text-sm text-error">
+                Supabase не настроен. Добавьте VITE_SUPABASE_URL и VITE_SUPABASE_ANON_KEY в Netlify.
+              </p>
+            )}
             <form onSubmit={handleLoginSubmit(onLogin)} className="space-y-4">
               <Input
                 label="Email"
@@ -97,7 +112,7 @@ export default function AdminPage() {
                 error={loginErrors.password?.message}
                 id="admin-pass"
               />
-              <Button type="submit" fullWidth disabled={isLoggingIn}>
+              <Button type="submit" fullWidth disabled={isLoggingIn || !isSupabaseConfigured}>
                 {isLoggingIn ? 'Вход...' : 'Войти'}
               </Button>
             </form>

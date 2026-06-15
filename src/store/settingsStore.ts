@@ -4,7 +4,7 @@
 
 import { create } from 'zustand';
 import type { Settings } from '@/types';
-import { supabase } from '@/lib/supabase';
+import { isSupabaseConfigured, supabase } from '@/lib/supabase';
 import { getStorageItem } from '@/lib/storage';
 
 interface SettingsState {
@@ -36,6 +36,16 @@ function mapDbToSettings(row: any, categories: any[]): Settings {
   };
 }
 
+async function loadLocalSettings(): Promise<Settings | null> {
+  const localSettings = getStorageItem<Settings | null>('settings', null);
+  if (localSettings) return localSettings;
+
+  const response = await fetch('/data/settings.json');
+  if (!response.ok) return null;
+
+  return response.json();
+}
+
 export const useSettingsStore = create<SettingsState>()((set, get) => ({
   settings: null,
   isLoading: false,
@@ -44,6 +54,12 @@ export const useSettingsStore = create<SettingsState>()((set, get) => ({
   loadSettings: async () => {
     set({ isLoading: true });
     try {
+      if (!isSupabaseConfigured || !supabase) {
+        const settings = await loadLocalSettings();
+        set({ settings, isLoading: false });
+        return;
+      }
+
       const [settingsRes, categoriesRes] = await Promise.all([
         supabase.from('settings').select('*').eq('id', 1).single(),
         supabase.from('categories').select('*'),
@@ -53,27 +69,26 @@ export const useSettingsStore = create<SettingsState>()((set, get) => ({
 
       if (settingsRes.data) {
         set({ settings: mapDbToSettings(settingsRes.data, categoriesRes.data || []), isLoading: false });
+      } else {
+        const settings = await loadLocalSettings();
+        set({ settings, isLoading: false });
       }
     } catch (error) {
       console.error('Failed to load settings from Supabase, loading fallback', error);
-      // Fallback
-      const localSettings = getStorageItem<Settings | null>('settings', null);
-      if (localSettings) {
-        set({ settings: localSettings, isLoading: false });
-      } else {
-        const response = await fetch('/data/settings.json');
-        if (response.ok) {
-          const data: Settings = await response.json();
-          set({ settings: data, isLoading: false });
-        } else {
-          set({ isLoading: false });
-        }
-      }
+      const settings = await loadLocalSettings();
+      set({ settings, isLoading: false });
     }
   },
 
   updateSettings: async (data) => {
     try {
+      if (!supabase) {
+        set((state) => ({
+          settings: state.settings ? { ...state.settings, ...data } : null,
+        }));
+        return;
+      }
+
       const dbData: any = {};
       if (data.whatsappPhone) dbData.whatsapp_phone = data.whatsappPhone;
       if (data.instagramUrl) dbData.instagram_url = data.instagramUrl;
@@ -97,17 +112,28 @@ export const useSettingsStore = create<SettingsState>()((set, get) => ({
   },
 
   checkSession: async () => {
-    const { data: { session } } = await supabase.auth.getSession();
-    set({ isAdmin: !!session });
-    
-    // Listen for auth changes
-    supabase.auth.onAuthStateChange((_event, session) => {
+    if (!supabase) {
+      set({ isAdmin: false });
+      return;
+    }
+
+    try {
+      const { data: { session } } = await supabase.auth.getSession();
       set({ isAdmin: !!session });
-    });
+
+      supabase.auth.onAuthStateChange((_event, session) => {
+        set({ isAdmin: !!session });
+      });
+    } catch (error) {
+      console.error('Failed to check Supabase session:', error);
+      set({ isAdmin: false });
+    }
   },
 
   logout: async () => {
-    await supabase.auth.signOut();
+    if (supabase) {
+      await supabase.auth.signOut();
+    }
     set({ isAdmin: false });
   },
 }));

@@ -4,7 +4,7 @@
 
 import { create } from 'zustand';
 import type { Product, FilterState, CategorySlug } from '@/types';
-import { supabase } from '@/lib/supabase';
+import { isSupabaseConfigured, supabase } from '@/lib/supabase';
 
 interface ProductState {
   products: Product[];
@@ -68,6 +68,12 @@ function mapProductToDb(p: Partial<Product>): any {
   return row;
 }
 
+async function loadLocalProducts(): Promise<Product[]> {
+  const res = await fetch('/data/products.json');
+  if (!res.ok) throw new Error('Failed to load local products');
+  return res.json();
+}
+
 export const useProductStore = create<ProductState>()((set, get) => ({
   products: [],
   isLoading: false,
@@ -77,15 +83,17 @@ export const useProductStore = create<ProductState>()((set, get) => ({
   loadProducts: async () => {
     set({ isLoading: true, error: null });
     try {
-      // 1. Fetch from Supabase
+      if (!isSupabaseConfigured || !supabase) {
+        const localData = await loadLocalProducts();
+        set({ products: localData, isLoading: false });
+        return;
+      }
+
       const { data, error } = await supabase.from('products').select('*');
       
       if (error) {
-        // Fallback to local JSON if DB fails/is not configured
         console.warn('Failed to fetch from Supabase, loading local JSON fallback', error);
-        const res = await fetch('/data/products.json');
-        if (!res.ok) throw new Error('Failed to load local products');
-        const localData = await res.json();
+        const localData = await loadLocalProducts();
         set({ products: localData, isLoading: false });
         return;
       }
@@ -93,17 +101,16 @@ export const useProductStore = create<ProductState>()((set, get) => ({
       if (data && data.length > 0) {
         set({ products: data.map(mapDbToProduct), isLoading: false });
       } else {
-        // If DB is empty, load from JSON as initial seed
-        const res = await fetch('/data/products.json');
-        if (res.ok) {
-          const localData = await res.json();
-          set({ products: localData, isLoading: false });
-        } else {
-          set({ products: [], isLoading: false });
-        }
+        const localData = await loadLocalProducts();
+        set({ products: localData, isLoading: false });
       }
     } catch (error) {
-      set({ error: (error as Error).message, isLoading: false });
+      try {
+        const localData = await loadLocalProducts();
+        set({ products: localData, isLoading: false });
+      } catch {
+        set({ error: (error as Error).message, isLoading: false });
+      }
     }
   },
 
@@ -163,6 +170,8 @@ export const useProductStore = create<ProductState>()((set, get) => ({
 
   addProduct: async (product) => {
     try {
+      if (!supabase) throw new Error('Supabase is not configured');
+
       const dbData = mapProductToDb(product);
       const { data, error } = await supabase.from('products').insert(dbData).select().single();
       
@@ -180,6 +189,8 @@ export const useProductStore = create<ProductState>()((set, get) => ({
 
   updateProduct: async (id, data) => {
     try {
+      if (!supabase) throw new Error('Supabase is not configured');
+
       const dbData = mapProductToDb(data);
       const { error } = await supabase.from('products').update(dbData).eq('id', id);
       
@@ -199,6 +210,8 @@ export const useProductStore = create<ProductState>()((set, get) => ({
 
   deleteProduct: async (id) => {
     try {
+      if (!supabase) throw new Error('Supabase is not configured');
+
       const { error } = await supabase.from('products').delete().eq('id', id);
       if (error) throw error;
 

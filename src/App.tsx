@@ -6,6 +6,7 @@ import Footer from '@/components/layout/Footer';
 import ToastContainer from '@/components/ui/Toast';
 import { CartDrawerProvider } from '@/components/cart/CartDrawerProvider';
 import CartDrawer from '@/components/cart/CartDrawer';
+import InstallPrompt from '@/components/ui/InstallPrompt';
 import HomePage from '@/pages/HomePage';
 import CatalogPage from '@/pages/CatalogPage';
 import ProductPage from '@/pages/ProductPage';
@@ -53,6 +54,7 @@ function AppContent() {
         <Footer />
         <CartDrawer />
         <ToastContainer />
+        <InstallPrompt />
       </div>
     </CartDrawerProvider>
   );
