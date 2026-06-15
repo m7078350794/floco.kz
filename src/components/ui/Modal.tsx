@@ -40,10 +40,10 @@ export default function Modal({ isOpen, onClose, title, children, size = 'md' }:
             onClick={onClose}
           />
           <motion.div
-            initial={{ opacity: 0, scale: 0.95, y: 20 }}
-            animate={{ opacity: 1, scale: 1, y: 0 }}
-            exit={{ opacity: 0, scale: 0.95, y: 20 }}
-            transition={{ type: 'spring', damping: 25, stiffness: 300 }}
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: 20 }}
+            transition={{ duration: 0.2 }}
             className={`relative w-full ${sizeClasses[size]} bg-surface rounded-[var(--radius-card)] shadow-elevated max-h-[90vh] overflow-hidden`}
           >
             {title && (

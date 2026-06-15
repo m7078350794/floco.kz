@@ -312,8 +312,17 @@ function ProductFormContent({
     });
   };
 
+  const onInvalid = (errors: any) => {
+    const firstError = Object.values(errors)[0] as any;
+    if (firstError?.message) {
+      import('@/components/ui/Toast').then(({ showToast }) => {
+        showToast('Ошибка заполнения: ' + firstError.message, 'error');
+      });
+    }
+  };
+
   return (
-    <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
+    <form onSubmit={handleSubmit(onSubmit, onInvalid)} className="space-y-4">
       <Input label="Название *" {...register('name')} error={errors.name?.message} id="prod-name" />
       <Input label="Slug (URL) *" {...register('slug')} error={errors.slug?.message} placeholder="auto-generated" id="prod-slug" />
       
