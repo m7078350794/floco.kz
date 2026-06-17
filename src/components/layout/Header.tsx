@@ -7,8 +7,10 @@ import { useRegionStore } from '@/store/regionStore';
 import { useSettingsStore } from '@/store/settingsStore';
 import RegionSelector from './RegionSelector';
 import LanguageSelector from './LanguageSelector';
+import { useTranslation } from 'react-i18next';
 
 export default function Header() {
+  const { t } = useTranslation();
   const [scrolled, setScrolled] = useState(false);
   const [menuOpen, setMenuOpen] = useState(false);
   const location = useLocation();
@@ -81,7 +83,7 @@ export default function Header() {
         }`}
       >
         <div className="max-w-7xl mx-auto px-5 sm:px-8">
-          <div className="flex items-center justify-between h-16 md:h-[72px]">
+          <div className="flex items-center justify-between h-16 md:h-[72px] relative">
             {/* Logo */}
             <Link to="/" className="group" id="header-logo">
               <span className={`font-heading text-2xl md:text-[26px] font-bold tracking-tight transition-colors ${
@@ -92,9 +94,9 @@ export default function Header() {
             </Link>
 
             {/* Desktop Nav */}
-            <nav className="hidden md:flex items-center gap-8" id="desktop-nav">
-              <NavLink to="/catalog" isTransparent={isTransparent}>Каталог</NavLink>
-              <NavLink to="/contacts" isTransparent={isTransparent}>Контакты</NavLink>
+            <nav className="hidden md:flex items-center gap-8 absolute left-1/2 -translate-x-1/2" id="desktop-nav">
+              <NavLink to="/catalog" isTransparent={isTransparent}>{t('nav.catalog')}</NavLink>
+              <NavLink to="/contacts" isTransparent={isTransparent}>{t('nav.contacts')}</NavLink>
               <RegionSelector isTransparent={isTransparent} />
               <LanguageSelector isTransparent={isTransparent} />
             </nav>
@@ -196,9 +198,9 @@ export default function Header() {
               className="absolute top-0 right-0 bottom-0 w-72 bg-surface shadow-drawer flex flex-col"
             >
               <div className="pt-20 px-6 flex-grow overflow-y-auto">
-                <MobileNavLink to="/" onClick={() => setMenuOpen(false)}>Главная</MobileNavLink>
-                <MobileNavLink to="/catalog" onClick={() => setMenuOpen(false)}>Каталог</MobileNavLink>
-                <MobileNavLink to="/contacts" onClick={() => setMenuOpen(false)}>Контакты</MobileNavLink>
+                <MobileNavLink to="/" onClick={() => setMenuOpen(false)}>{t('nav.home')}</MobileNavLink>
+                <MobileNavLink to="/catalog" onClick={() => setMenuOpen(false)}>{t('nav.catalog')}</MobileNavLink>
+                <MobileNavLink to="/contacts" onClick={() => setMenuOpen(false)}>{t('nav.contacts')}</MobileNavLink>
                 
                 <div className="mt-6 flex gap-4 border-t border-border pt-6">
                   <div className="flex-1 bg-cream rounded-lg p-2">

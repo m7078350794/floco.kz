@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
+import { useTranslation } from 'react-i18next';
 
 const faqs = [
   {
@@ -29,6 +30,7 @@ const faqs = [
 ];
 
 export default function FAQSection() {
+  const { t } = useTranslation();
   const [openIndex, setOpenIndex] = useState<number | null>(null);
 
   return (
@@ -42,10 +44,10 @@ export default function FAQSection() {
           className="text-center mb-10 md:mb-14"
         >
           <h2 className="font-heading text-3xl md:text-5xl font-semibold text-primary">
-            Частые вопросы
+            {t('home.faq.title')}
           </h2>
           <p className="text-text-secondary mt-2 text-sm md:text-base">
-            Ответы на популярные вопросы о заказе и доставке
+            {t('home.faq.subtitle')}
           </p>
         </motion.div>
 

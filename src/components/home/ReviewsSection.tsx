@@ -1,5 +1,6 @@
 import { useRef } from 'react';
 import { motion, useScroll, useTransform } from 'framer-motion';
+import { useTranslation } from 'react-i18next';
 
 const reviews = [
   {
@@ -40,6 +41,7 @@ const reviews = [
 ];
 
 export default function ReviewsSection() {
+  const { t } = useTranslation();
   const containerRef = useRef<HTMLDivElement>(null);
   const { scrollYProgress } = useScroll({
     target: containerRef,
@@ -59,10 +61,10 @@ export default function ReviewsSection() {
           className="text-center mb-12 md:mb-20"
         >
           <h2 className="font-heading text-3xl md:text-5xl font-semibold text-primary">
-            Говорят о нас
+            {t('home.reviews.title')}
           </h2>
           <p className="text-text-secondary mt-3 text-sm md:text-base max-w-lg mx-auto">
-            Мы гордимся тем, что наши цветы приносят радость. Читайте отзывы наших клиентов.
+            {t('home.reviews.subtitle')}
           </p>
         </motion.div>
 

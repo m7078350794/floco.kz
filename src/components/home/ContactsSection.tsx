@@ -2,8 +2,10 @@ import { useRef } from 'react';
 import { motion, useInView } from 'framer-motion';
 import { useSettingsStore } from '@/store/settingsStore';
 import { useRegionStore } from '@/store/regionStore';
+import { useTranslation } from 'react-i18next';
 
 export default function ContactsSection() {
+  const { t } = useTranslation();
   const ref = useRef(null);
   const isInView = useInView(ref, { once: true, margin: '-100px' });
   const city = useRegionStore((s) => s.city);
@@ -24,9 +26,9 @@ export default function ContactsSection() {
           className="text-center mb-14"
         >
           <h2 className="font-heading text-3xl md:text-4xl lg:text-5xl font-semibold text-navy mb-3">
-            Свяжитесь с нами
+            {t('home.contacts.title')}
           </h2>
-          <p className="text-text-secondary">Мы всегда рады помочь с выбором</p>
+          <p className="text-text-secondary">{t('home.contacts.subtitle')}</p>
         </motion.div>
 
         <motion.div
@@ -47,7 +49,7 @@ export default function ContactsSection() {
               </svg>
             </div>
             <h3 className="font-heading text-lg font-semibold text-navy mb-1">WhatsApp</h3>
-            <p className="text-sm text-text-secondary">Быстрый заказ</p>
+            <p className="text-sm text-text-secondary">{t('home.contacts.whatsapp')}</p>
           </a>
 
           <a
@@ -71,7 +73,7 @@ export default function ContactsSection() {
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
               </svg>
             </div>
-            <h3 className="font-heading text-lg font-semibold text-navy mb-1">Время работы</h3>
+            <h3 className="font-heading text-lg font-semibold text-navy mb-1">{t('home.contacts.workingHours')}</h3>
             <p className="text-sm text-text-secondary">{workingHours}</p>
           </div>
         </motion.div>

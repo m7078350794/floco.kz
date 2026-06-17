@@ -1,5 +1,6 @@
 import { useState, useRef, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
+import { useTranslation } from 'react-i18next';
 
 const LANGUAGES = [
   { code: 'ru', name: 'Русский', short: 'RU' },
@@ -8,8 +9,7 @@ const LANGUAGES = [
 ];
 
 export default function LanguageSelector({ isTransparent }: { isTransparent: boolean }) {
-  // Temporary state until i18n is implemented
-  const [lang, setLang] = useState('ru');
+  const { i18n } = useTranslation();
   const [isOpen, setIsOpen] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
 
@@ -23,7 +23,8 @@ export default function LanguageSelector({ isTransparent }: { isTransparent: boo
     return () => document.removeEventListener('mousedown', handleClickOutside);
   }, []);
 
-  const selectedLang = LANGUAGES.find((l) => l.code === lang) || LANGUAGES[0];
+  const currentLangCode = i18n.language?.split('-')[0] || 'ru';
+  const selectedLang = LANGUAGES.find((l) => l.code === currentLangCode) || LANGUAGES[0];
 
   return (
     <div className="relative" ref={dropdownRef}>
@@ -53,11 +54,11 @@ export default function LanguageSelector({ isTransparent }: { isTransparent: boo
               <button
                 key={l.code}
                 onClick={() => {
-                  setLang(l.code);
+                  i18n.changeLanguage(l.code);
                   setIsOpen(false);
                 }}
                 className={`block w-full text-left px-4 py-2 text-sm transition-colors ${
-                  lang === l.code ? 'bg-cream text-navy font-medium' : 'text-text-secondary hover:bg-cream/50'
+                  currentLangCode === l.code ? 'bg-cream text-navy font-medium' : 'text-text-secondary hover:bg-cream/50'
                 }`}
               >
                 {l.name}

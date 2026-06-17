@@ -1,8 +1,10 @@
 import { Link } from 'react-router-dom';
-import { useSettingsStore } from '@/store/settingsStore';
 import { useRegionStore } from '@/store/regionStore';
+import { useSettingsStore } from '@/store/settingsStore';
+import { useTranslation } from 'react-i18next';
 
 export default function Footer() {
+  const { t } = useTranslation();
   const city = useRegionStore((s) => s.city);
   const settings = useSettingsStore((s) => s.getSettingsForCity(city));
 
@@ -17,10 +19,10 @@ export default function Footer() {
             <Link to="/" className="inline-block font-heading text-2xl font-bold text-primary mb-6">
               FLOCO
             </Link>
-            <p className="text-text-secondary text-sm mb-6 max-w-xs">
-              Студия авторской флористики в Алматы. Создаем букеты, которые говорят больше, чем слова.
+            <p className="text-sm text-text-secondary leading-relaxed mt-4 max-w-sm">
+              {t('footer.about')}
             </p>
-            <div className="flex items-center gap-4">
+            <div className="flex items-center gap-4 mt-6">
               {settings?.instagramUrl && (
                 <a href={settings.instagramUrl} target="_blank" rel="noopener noreferrer" className="text-text-muted hover:text-primary transition-colors">
                   <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 24 24"><path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zm0-2.163c-3.259 0-3.667.014-4.947.072-4.358.2-6.78 2.618-6.98 6.98-.059 1.281-.073 1.689-.073 4.948 0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98 1.281.058 1.689.072 4.948.072 3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98-1.281-.059-1.69-.073-4.949-.073zm0 5.838c-3.403 0-6.162 2.759-6.162 6.162s2.759 6.163 6.162 6.163 6.162-2.759 6.162-6.163c0-3.403-2.759-6.162-6.162-6.162zm0 10.162c-2.209 0-4-1.79-4-4 0-2.209 1.791-4 4-4s4 1.791 4 4c0 2.21-1.791 4-4 4zm6.406-11.845c-.796 0-1.441.645-1.441 1.44s.645 1.44 1.441 1.44c.795 0 1.439-.645 1.439-1.44s-.644-1.44-1.439-1.44z"/></svg>
@@ -36,28 +38,28 @@ export default function Footer() {
 
           {/* Catalog */}
           <div>
-            <h3 className="font-medium text-primary mb-6">Каталог</h3>
+            <h3 className="font-medium text-primary mb-6">{t('footer.catalog')}</h3>
             <ul className="space-y-4 text-sm text-text-secondary">
-              <li><Link to="/catalog?category=mono" className="hover:text-primary transition-colors">Монобукеты</Link></li>
-              <li><Link to="/catalog?category=author" className="hover:text-primary transition-colors">Авторские букеты</Link></li>
-              <li><Link to="/catalog?category=box" className="hover:text-primary transition-colors">Композиции в коробке</Link></li>
-              <li><Link to="/catalog?category=wedding" className="hover:text-primary transition-colors">Свадебная флористика</Link></li>
+              <li><Link to="/catalog?category=mono" className="hover:text-primary transition-colors">{t('catalog.mono')}</Link></li>
+              <li><Link to="/catalog?category=author" className="hover:text-primary transition-colors">{t('catalog.author')}</Link></li>
+              <li><Link to="/catalog?category=box" className="hover:text-primary transition-colors">{t('catalog.box')}</Link></li>
+              <li><Link to="/catalog?category=wedding" className="hover:text-primary transition-colors">{t('catalog.wedding')}</Link></li>
             </ul>
           </div>
 
           {/* Customer Service */}
           <div>
-            <h3 className="font-medium text-primary mb-6">Покупателям</h3>
+            <h3 className="font-medium text-primary mb-6">{t('footer.navigation')}</h3>
             <ul className="space-y-4 text-sm text-text-secondary">
-              <li><Link to="/contacts" className="hover:text-primary transition-colors">Контакты</Link></li>
-              <li><a href="#faq" className="hover:text-primary transition-colors">Вопросы и ответы (FAQ)</a></li>
-              <li><Link to="/privacy" className="hover:text-primary transition-colors">Политика конфиденциальности</Link></li>
+              <li><Link to="/contacts" className="hover:text-primary transition-colors">{t('nav.contacts')}</Link></li>
+              <li><a href="#faq" className="hover:text-primary transition-colors">{t('nav.faq')}</a></li>
+              <li><Link to="/privacy" className="hover:text-primary transition-colors">{t('nav.privacy')}</Link></li>
             </ul>
           </div>
 
           {/* Contact */}
           <div>
-            <h3 className="font-medium text-primary mb-6">Связаться с нами</h3>
+            <h3 className="font-medium text-primary mb-6">{t('footer.contacts')}</h3>
             <ul className="space-y-4 text-sm text-text-secondary">
               {settings?.whatsappPhone && (
                 <li>
@@ -80,10 +82,10 @@ export default function Footer() {
           </div>
         </div>
 
-        <div className="border-t border-border mt-16 pt-8 flex flex-col md:flex-row items-center justify-between text-xs text-text-muted">
-          <p>© {new Date().getFullYear()} FLOCO. Все права защищены.</p>
-          <div className="mt-4 md:mt-0 space-x-6">
-            <Link to="/privacy" className="hover:text-primary transition-colors">Privacy</Link>
+        <div className="border-t border-border mt-16 pt-8 flex flex-col md:flex-row items-center justify-between gap-4 text-xs text-text-muted">
+          <p>© {new Date().getFullYear()} FLOCO. {t('footer.rights')}</p>
+          <div className="flex items-center gap-6">
+            <Link to="/privacy" className="hover:text-primary transition-colors">{t('nav.privacy')}</Link>
             <Link to="/admin" className="hover:text-primary transition-colors">Admin</Link>
           </div>
         </div>

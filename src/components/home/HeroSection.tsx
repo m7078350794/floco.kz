@@ -1,7 +1,16 @@
 import { Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
+import { useTranslation } from 'react-i18next';
+import { useRegionStore, COUNTRIES } from '@/store/regionStore';
 
 export default function HeroSection() {
+  const { t } = useTranslation();
+  const countryId = useRegionStore((s) => s.country);
+  const cityId = useRegionStore((s) => s.city);
+  
+  const cityData = COUNTRIES[countryId]?.cities.find((c: any) => c.id === cityId);
+  const cityName = cityData?.name || 'Алматы';
+
   return (
     <section className="relative h-screen min-h-[600px] max-h-[1000px] flex items-center justify-center overflow-hidden" id="hero">
       {/* Background Image */}
@@ -29,7 +38,7 @@ export default function HeroSection() {
             transition={{ duration: 0.8, delay: 0.3 }}
             className="font-heading text-6xl md:text-8xl lg:text-9xl font-bold text-white mb-3 tracking-tight"
           >
-            FLOCO
+            {t('home.hero.title')}
           </motion.h1>
 
           <motion.p
@@ -38,7 +47,7 @@ export default function HeroSection() {
             transition={{ duration: 0.8, delay: 0.5 }}
             className="text-white/80 text-sm md:text-base tracking-[0.3em] uppercase mb-10 font-light"
           >
-            Цветы · Алматы · Доставка
+            {t('home.hero.subtitle', { city: cityName })}
           </motion.p>
 
           {/* CTA Buttons */}
@@ -54,7 +63,7 @@ export default function HeroSection() {
                 whileTap={{ scale: 0.97 }}
                 className="w-full sm:w-auto px-10 py-4 bg-white text-primary font-medium tracking-wide rounded-[var(--radius-button)] transition-all hover:bg-white/95 cursor-pointer text-sm uppercase"
               >
-                Выбрать букет
+                {t('home.hero.button')}
               </motion.button>
             </Link>
             <Link to="/catalog?delivery=today">

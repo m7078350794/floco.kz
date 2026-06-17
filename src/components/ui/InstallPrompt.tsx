@@ -1,7 +1,9 @@
 import { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
+import { useTranslation } from 'react-i18next';
 
 export default function InstallPrompt() {
+  const { t } = useTranslation();
   const [showPrompt, setShowPrompt] = useState(false);
   const [isIOS, setIsIOS] = useState(false);
   const [isStandalone, setIsStandalone] = useState(false);
@@ -31,7 +33,7 @@ export default function InstallPrompt() {
               <path strokeLinecap="round" strokeLinejoin="round" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
             </svg>
           </div>
-          <span className="font-medium text-sm">Установить приложение</span>
+          <span className="font-medium text-sm">{t('home.install.button')}</span>
         </button>
       </div>
 
@@ -64,8 +66,8 @@ export default function InstallPrompt() {
                 <div className="w-16 h-16 bg-cream rounded-2xl mx-auto mb-4 flex items-center justify-center shadow-soft">
                   <span className="font-heading text-2xl font-bold text-primary">F</span>
                 </div>
-                <h3 className="text-xl font-heading font-semibold text-primary mb-2">Установить FLOCO</h3>
-                <p className="text-text-secondary text-sm">Добавьте магазин на главный экран для быстрого доступа</p>
+                <h3 className="text-xl font-heading font-semibold text-primary mb-2">{t('home.install.title')}</h3>
+                <p className="text-text-secondary text-sm">{t('home.install.subtitle')}</p>
               </div>
 
               <div className="space-y-4 bg-background rounded-xl p-4 border border-border/50">
@@ -73,13 +75,13 @@ export default function InstallPrompt() {
                   <div className="w-10 h-10 bg-surface rounded-full shadow-sm flex items-center justify-center flex-shrink-0 text-primary">
                     1
                   </div>
-                  <p className="text-sm font-medium">Нажмите иконку <span className="font-bold">«Поделиться»</span> (квадрат со стрелочкой) в меню Safari</p>
+                  <p className="text-sm font-medium" dangerouslySetInnerHTML={{ __html: t('home.install.step1') }}></p>
                 </div>
                 <div className="flex items-center gap-4">
                   <div className="w-10 h-10 bg-surface rounded-full shadow-sm flex items-center justify-center flex-shrink-0 text-primary">
                     2
                   </div>
-                  <p className="text-sm font-medium">Прокрутите вниз и выберите <span className="font-bold">«На экран Домой»</span> (кнопка с плюсом)</p>
+                  <p className="text-sm font-medium" dangerouslySetInnerHTML={{ __html: t('home.install.step2') }}></p>
                 </div>
               </div>
 
@@ -87,7 +89,7 @@ export default function InstallPrompt() {
                 onClick={() => setShowPrompt(false)}
                 className="w-full mt-6 py-3.5 bg-primary text-white rounded-[14px] font-medium"
               >
-                Понятно
+                {t('home.install.gotIt')}
               </button>
             </motion.div>
           </div>

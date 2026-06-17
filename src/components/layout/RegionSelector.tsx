@@ -42,7 +42,7 @@ export default function RegionSelector({ isTransparent }: { isTransparent: boole
             initial={{ opacity: 0, y: 10 }}
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: 10 }}
-            className="absolute top-full right-0 mt-2 w-48 bg-surface rounded-xl shadow-lg border border-border/50 py-2 z-50"
+            className="absolute top-full left-0 md:left-auto md:right-0 mt-2 w-48 bg-surface rounded-xl shadow-lg border border-border/50 py-2 z-50"
           >
             {Object.values(COUNTRIES).map((c) => (
               <div key={c.id} className="px-3 py-2">

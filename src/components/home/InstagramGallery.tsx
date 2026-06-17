@@ -1,11 +1,32 @@
 import { useRef, useEffect, useState } from 'react';
 import { motion, useInView } from 'framer-motion';
 import type { Product } from '@/types';
+import { useTranslation } from 'react-i18next';
+import { useRegionStore } from '@/store/regionStore';
+import { useSettingsStore } from '@/store/settingsStore';
 
 export default function InstagramGallery() {
+  const { t } = useTranslation();
   const ref = useRef(null);
   const isInView = useInView(ref, { once: true, margin: '-100px' });
   const [images, setImages] = useState<Product[]>([]);
+
+  const city = useRegionStore((s) => s.city);
+  const settings = useSettingsStore((s) => s.getSettingsForCity(city));
+  
+  const instagramUrl = settings?.instagramUrl || 'https://www.instagram.com/floco.ala/';
+  let instagramHandle = '@floco.ala';
+  try {
+    if (instagramUrl) {
+      const url = new URL(instagramUrl);
+      const parts = url.pathname.split('/').filter(Boolean);
+      if (parts.length > 0) {
+        instagramHandle = `@${parts[0]}`;
+      }
+    }
+  } catch (e) {
+    // silently fallback
+  }
 
   useEffect(() => {
     fetch('/data/products.json')
@@ -23,15 +44,15 @@ export default function InstagramGallery() {
           className="text-center mb-12"
         >
           <h2 className="font-heading text-3xl md:text-4xl lg:text-5xl font-semibold text-navy mb-3">
-            Мы в Instagram
+            {t('home.instagram.title')}
           </h2>
           <a
-            href="https://www.instagram.com/floco.ala/"
+            href={instagramUrl}
             target="_blank"
             rel="noopener noreferrer"
             className="text-blush-dark hover:text-navy transition-colors text-lg font-heading"
           >
-            @floco.ala
+            {instagramHandle}
           </a>
         </motion.div>
 
@@ -39,7 +60,7 @@ export default function InstagramGallery() {
           {images.map((img, index) => (
             <motion.a
               key={img.id}
-              href="https://www.instagram.com/floco.ala/"
+              href={instagramUrl}
               target="_blank"
               rel="noopener noreferrer"
               initial={{ opacity: 0, scale: 0.95 }}

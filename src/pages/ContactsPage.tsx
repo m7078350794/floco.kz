@@ -1,7 +1,9 @@
 import { useSettingsStore } from '@/store/settingsStore';
 import { useRegionStore } from '@/store/regionStore';
+import { useTranslation } from 'react-i18next';
 
 export default function ContactsPage() {
+  const { t } = useTranslation();
   const city = useRegionStore((s) => s.city);
   const settings = useSettingsStore((s) => s.getSettingsForCity(city));
 
@@ -11,15 +13,15 @@ export default function ContactsPage() {
         
         <div className="mb-12 text-center">
           <h1 className="font-heading text-4xl md:text-5xl lg:text-6xl font-bold text-primary mb-4">
-            Контакты
+            {t('contacts.title')}
           </h1>
-          <p className="text-text-secondary">Свяжитесь с нами для заказа или консультации</p>
+          <p className="text-text-secondary">{t('contacts.subtitle')}</p>
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-8 mb-16">
           {/* Contact info cards */}
           <div className="bg-surface p-8 rounded-[32px] shadow-soft border border-border/50 flex flex-col justify-center">
-            <h3 className="font-heading text-2xl font-semibold text-primary mb-6">Связаться с нами</h3>
+            <h3 className="font-heading text-2xl font-semibold text-primary mb-6">{t('contacts.contactUs')}</h3>
             
             <div className="space-y-6">
               {settings?.whatsappPhone && (
@@ -57,7 +59,7 @@ export default function ContactsPage() {
           </div>
 
           <div className="bg-surface p-8 rounded-[32px] shadow-soft border border-border/50 flex flex-col justify-center">
-            <h3 className="font-heading text-2xl font-semibold text-primary mb-6">Наш магазин</h3>
+            <h3 className="font-heading text-2xl font-semibold text-primary mb-6">{t('contacts.shop')}</h3>
             
             <div className="space-y-6">
               {settings?.shopAddress && (
@@ -69,7 +71,7 @@ export default function ContactsPage() {
                     </svg>
                   </div>
                   <div>
-                    <p className="text-sm text-text-secondary mb-1">Адрес</p>
+                    <p className="text-sm text-text-secondary mb-1">{t('contacts.address')}</p>
                     <p className="text-lg font-medium text-primary leading-tight">
                       {settings.shopAddress}
                     </p>
@@ -85,7 +87,7 @@ export default function ContactsPage() {
                     </svg>
                   </div>
                   <div>
-                    <p className="text-sm text-text-secondary mb-1">Режим работы</p>
+                    <p className="text-sm text-text-secondary mb-1">{t('contacts.workingHours')}</p>
                     <p className="text-lg font-medium text-primary">
                       {settings.workingHours}
                     </p>

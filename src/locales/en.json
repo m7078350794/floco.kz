@@ -1,0 +1,174 @@
+{
+  "nav": {
+    "home": "Home",
+    "catalog": "Catalog",
+    "contacts": "Contacts",
+    "delivery": "Delivery",
+    "cart": "Cart",
+    "faq": "FAQ",
+    "privacy": "Privacy Policy"
+  },
+  "home": {
+    "hero": {
+      "title": "FLOCO",
+      "subtitle": "Flowers · {{city}} · Delivery",
+      "button": "Choose a bouquet",
+      "buttonDelivery": "Delivery today",
+      "tags": {
+        "delivery": "Delivery in 60 min",
+        "fresh": "Only fresh",
+        "service": "24/7 service"
+      }
+    },
+    "popular": {
+      "title": "Popular",
+      "subtitle": "Most frequently chosen bouquets",
+      "viewAll": "View all"
+    },
+    "benefits": {
+      "title": "Why FLOCO?",
+      "subtitle": "We care about every detail",
+      "items": {
+        "quality": {
+          "title": "Fresh flowers",
+          "desc": "We guarantee the freshness of every bouquet. Deliveries 3 times a week."
+        },
+        "delivery": {
+          "title": "Fast delivery",
+          "desc": "We carefully deliver your order in 60 minutes to anywhere in the city."
+        },
+        "support": {
+          "title": "24/7 Support",
+          "desc": "Always in touch to help with choices and answer questions."
+        }
+      }
+    },
+    "contacts": {
+      "title": "Contact Us",
+      "subtitle": "We are always happy to help with your choice",
+      "whatsapp": "Quick Order",
+      "workingHours": "Working Hours"
+    },
+    "faq": {
+      "title": "Frequently Asked Questions",
+      "subtitle": "Answers to popular questions about ordering and delivery"
+    },
+    "instagram": {
+      "title": "Follow us on Instagram"
+    },
+    "reviews": {
+      "title": "What they say about us",
+      "subtitle": "We are proud that our flowers bring joy. Read the reviews of our customers."
+    },
+    "install": {
+      "button": "Install App",
+      "title": "Install FLOCO",
+      "subtitle": "Add the store to your home screen for quick access",
+      "step1": "Tap the <b>Share</b> icon (square with an arrow) in the Safari menu",
+      "step2": "Scroll down and select <b>Add to Home Screen</b> (button with a plus)",
+      "gotIt": "Got it"
+    }
+  },
+  "catalog": {
+    "title": "Catalog",
+    "subtitle": "Choose the perfect bouquet for your occasion",
+    "categories": {
+      "all": "All",
+      "mono": "Mono bouquets",
+      "author": "Author's",
+      "box": "In a box",
+      "peony-roses": "Peony roses",
+      "wedding": "Wedding",
+      "gifts": "Gifts"
+    },
+    "sort": {
+      "label": "Sort",
+      "popular": "Popular",
+      "priceAsc": "Cheaper first",
+      "priceDesc": "More expensive first",
+      "newest": "Newest"
+    },
+    "search": "Search in catalog...",
+    "empty": "Nothing found for your request.",
+    "clearSearch": "Clear search"
+  },
+  "product": {
+    "order": "Order",
+    "composition": "Composition",
+    "size": "Size",
+    "sizes": {
+      "S": "S — Small",
+      "M": "M — Medium",
+      "L": "L — Large",
+      "XL": "XL — Extra Large"
+    },
+    "delivery": "Delivery Terms",
+    "similar": "Similar Bouquets",
+    "notFound": "Bouquet not found",
+    "outOfStock": "Out of stock",
+    "buyNow": "Buy Now",
+    "guarantee": "Fresh flowers and fast delivery. Photo of the bouquet sent to WhatsApp before dispatch."
+  },
+  "cart": {
+    "title": "Cart",
+    "empty": "Your cart is empty",
+    "emptyDesc": "Go to the catalog to choose a beautiful bouquet",
+    "toCatalog": "Go to catalog",
+    "total": "Total",
+    "checkout": "Checkout",
+    "quantity": "pcs",
+    "addComment": "Add a wish..."
+  },
+  "checkout": {
+    "title": "Checkout",
+    "backToCart": "Back to cart",
+    "step1": "Your details",
+    "step2": "Delivery",
+    "step3": "Recipient details",
+    "form": {
+      "name": "Your name *",
+      "namePlaceholder": "John Doe",
+      "phone": "Your phone *",
+      "address": "Delivery address *",
+      "addressPlaceholder": "Abay ave 1, apt 2",
+      "date": "Delivery date *",
+      "time": "Delivery time *",
+      "anonymous": "Anonymously",
+      "anonymousDesc": "We will not tell the recipient your name. The order will be delivered as a surprise.",
+      "recipientName": "Recipient's name",
+      "recipientPhone": "Recipient's phone",
+      "comment": "Order comment",
+      "commentPlaceholder": "Postcard text or delivery wishes..."
+    },
+    "summary": {
+      "title": "Your order",
+      "items": "Items",
+      "delivery": "Delivery",
+      "free": "Free",
+      "total": "Total to pay",
+      "submit": "Order via WhatsApp",
+      "submitting": "Processing...",
+      "terms": "By clicking the button, you agree to the terms"
+    }
+  },
+  "footer": {
+    "about": "FLOCO is a modern flower delivery service. We create emotions and bring joy to your loved ones.",
+    "catalog": "Catalog",
+    "navigation": "For Customers",
+    "contacts": "Contact Us",
+    "rights": "All rights reserved."
+  },
+  "contacts": {
+    "title": "Contacts",
+    "subtitle": "Contact us for orders or consultations",
+    "contactUs": "Contact Us",
+    "shop": "Our Shop",
+    "address": "Address",
+    "workingHours": "Working Hours"
+  },
+  "privacy": {
+    "title": "Privacy Policy",
+    "updated": "Last updated: June 15, 2026",
+    "content": "<h2>1. General Provisions</h2><p>This Privacy Policy determines the procedure for processing and protecting the personal data of users of the FLOCO service (hereinafter referred to as the “Service”). We respect the personal information of our customers and guarantee its safety.</p><h2>2. Collection and Use of Information</h2><p>When placing an order, we collect the following data:</p><ul><li>Name and contact phone number of the customer;</li><li>Name and contact phone number of the recipient (if the order is not placed for oneself);</li><li>Delivery address;</li><li>Comments and wishes for the order.</li></ul><p>These data are used exclusively for:</p><ul><li>Processing and delivering your order;</li><li>Contacting you to confirm details;</li><li>Improving the quality of our service.</li></ul><h2>3. Data Protection</h2><p>We take all necessary technical and organizational measures to protect your personal information from unauthorized access, modification, disclosure or destruction. Your data is transferred only to FLOCO employees (managers, florists and couriers) directly involved in fulfilling your order.</p><h2>4. Anonymous Delivery</h2><p>If you choose the “Anonymous Delivery” option, we guarantee that the recipient will not know your name or contact details. All information about the sender remains strictly confidential and is not passed on to the recipient under any circumstances.</p><h2>5. Changes to the Privacy Policy</h2><p>We reserve the right to make changes to this Policy. The new version of the Policy comes into force from the moment it is published on this page.</p><h2>6. Contacts</h2><p>If you have any questions regarding our Privacy Policy, please contact us via WhatsApp or Instagram, indicated in the “Contacts” section.</p>"
+  }
+}

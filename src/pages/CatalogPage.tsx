@@ -8,19 +8,21 @@ import { Link } from 'react-router-dom';
 import type { Product } from '@/types';
 import { useRegionStore } from '@/store/regionStore';
 import { getProductPrice, getProductOldPrice } from '@/lib/price';
-
-const CATEGORIES = [
-  { id: 'all', label: 'Все' },
-  { id: 'mono', label: 'Монобукеты' },
-  { id: 'author', label: 'Авторские букеты' },
-  { id: 'box', label: 'Композиции в коробке' },
-  { id: 'wedding', label: 'Свадебная флористика' },
-];
+import { useTranslation } from 'react-i18next';
 
 export default function CatalogPage() {
+  const { t } = useTranslation();
   const products = useProductStore((s) => s.products);
   const currentCountry = useRegionStore((s) => s.country);
   const [activeCategory, setActiveCategory] = useState('all');
+
+  const CATEGORIES = [
+    { id: 'all', label: t('catalog.categories.all') },
+    { id: 'mono', label: t('catalog.categories.mono') },
+    { id: 'author', label: t('catalog.categories.author') },
+    { id: 'box', label: t('catalog.categories.box') },
+    { id: 'wedding', label: t('catalog.categories.wedding') },
+  ];
 
   const filteredProducts = useMemo(() => {
     if (activeCategory === 'all') return products;
@@ -32,9 +34,9 @@ export default function CatalogPage() {
       <div className="max-w-7xl mx-auto px-5 sm:px-8">
         <div className="mb-10 md:mb-14 text-center">
           <h1 className="font-heading text-4xl md:text-5xl lg:text-6xl font-bold text-primary mb-4">
-            Каталог
+            {t('catalog.title')}
           </h1>
-          <p className="text-text-secondary">Свежие цветы с доставкой по Алматы</p>
+          <p className="text-text-secondary">{t('catalog.subtitle')}</p>
         </div>
 
         {/* Categories (Pills) */}
@@ -63,12 +65,12 @@ export default function CatalogPage() {
 
         {filteredProducts.length === 0 && (
           <div className="text-center py-20">
-            <p className="text-text-secondary text-lg">В этой категории пока нет товаров.</p>
+            <p className="text-text-secondary text-lg">{t('catalog.empty')}</p>
             <button
               onClick={() => setActiveCategory('all')}
               className="mt-4 text-primary font-medium hover:underline cursor-pointer"
             >
-              Показать все букеты
+              {t('catalog.clearSearch')}
             </button>
           </div>
         )}
@@ -78,6 +80,7 @@ export default function CatalogPage() {
 }
 
 function CatalogCard({ product, index, currentCountry }: { product: Product; index: number; currentCountry: string }) {
+  const { t } = useTranslation();
   const addItem = useCartStore((s) => s.addItem);
   const { open } = useCartDrawer();
 
@@ -119,7 +122,7 @@ function CatalogCard({ product, index, currentCountry }: { product: Product; ind
               onClick={handleAddToCart}
               className="w-full py-3.5 bg-primary/95 backdrop-blur-sm text-white font-medium rounded-xl hover:bg-primary transition-colors cursor-pointer"
             >
-              Добавить в корзину
+              {t('product.order')}
             </button>
           </div>
         </div>
@@ -144,7 +147,7 @@ function CatalogCard({ product, index, currentCountry }: { product: Product; ind
             onClick={handleAddToCart}
             className="mt-3 w-full py-2.5 border border-border text-primary text-sm font-medium rounded-xl hover:border-primary transition-colors cursor-pointer md:hidden"
           >
-            В корзину
+            {t('product.order')}
           </button>
         </div>
       </Link>

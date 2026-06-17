@@ -9,8 +9,10 @@ import { useRegionStore } from '@/store/regionStore';
 import { getProductPrice, getProductOldPrice } from '@/lib/price';
 import { formatPrice } from '@/lib/formatters';
 import type { Product } from '@/types';
+import { useTranslation } from 'react-i18next';
 
 export default function ProductPage() {
+  const { t } = useTranslation();
   const { slug } = useParams<{ slug: string }>();
   const currentCountry = useRegionStore((s) => s.country);
   const navigate = useNavigate();
@@ -31,9 +33,9 @@ export default function ProductPage() {
     return (
       <div className="min-h-screen flex items-center justify-center pt-20">
         <div className="text-center">
-          <h1 className="text-2xl font-semibold mb-4 text-primary">Букет не найден</h1>
+          <h1 className="text-2xl font-semibold mb-4 text-primary">{t('product.notFound')}</h1>
           <button onClick={() => navigate('/catalog')} className="text-text-secondary hover:text-primary transition-colors cursor-pointer">
-            Вернуться в каталог
+            {t('nav.catalog')}
           </button>
         </div>
       </div>
@@ -60,9 +62,9 @@ export default function ProductPage() {
         
         {/* Breadcrumbs */}
         <nav className="flex text-sm text-text-muted mb-8">
-          <Link to="/" className="hover:text-primary transition-colors">Главная</Link>
+          <Link to="/" className="hover:text-primary transition-colors">{t('nav.home')}</Link>
           <span className="mx-2">/</span>
-          <Link to="/catalog" className="hover:text-primary transition-colors">Каталог</Link>
+          <Link to="/catalog" className="hover:text-primary transition-colors">{t('nav.catalog')}</Link>
           <span className="mx-2">/</span>
           <span className="text-primary truncate">{product.name}</span>
         </nav>
@@ -127,12 +129,12 @@ export default function ProductPage() {
             </div>
 
             <p className="text-text-secondary leading-relaxed mb-8">
-              {product.description || 'Элегантный букет, собранный нашими флористами с любовью. Идеально подойдет для любого повода и подарит незабываемые эмоции.'}
+              {product.description || t('product.guarantee')}
             </p>
 
             {product.composition && product.composition.length > 0 && (
               <div className="mb-10">
-                <h3 className="font-medium text-primary mb-3">Состав:</h3>
+                <h3 className="font-medium text-primary mb-3">{t('product.composition')}:</h3>
                 <ul className="grid grid-cols-2 gap-2">
                   {product.composition.map((item, idx) => (
                     <li key={idx} className="text-sm text-text-secondary flex items-center gap-2">
@@ -174,7 +176,7 @@ export default function ProductPage() {
                   disabled={!product.inStock}
                   className="flex-1 bg-primary text-white font-medium rounded-[var(--radius-button)] hover:bg-primary-hover transition-colors cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed btn-shine"
                 >
-                  {product.inStock ? 'Добавить в корзину' : 'Нет в наличии'}
+                  {product.inStock ? t('product.order') : t('product.outOfStock')}
                 </button>
               </div>
 
@@ -187,7 +189,7 @@ export default function ProductPage() {
                 disabled={!product.inStock}
                 className="w-full py-4 bg-transparent border-2 border-primary text-primary font-medium rounded-[var(--radius-button)] hover:bg-primary/5 transition-colors cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
               >
-                Купить сейчас
+                {t('product.buyNow')}
               </button>
             </div>
             
@@ -198,7 +200,7 @@ export default function ProductPage() {
                   <path strokeLinecap="round" strokeLinejoin="round" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
                 </svg>
               </div>
-              <p>Свежие цветы и быстрая доставка. Фото букета перед отправкой в WhatsApp.</p>
+              <p>{t('product.guarantee')}</p>
             </div>
           </motion.div>
         </div>
@@ -207,7 +209,7 @@ export default function ProductPage() {
         {similarProducts.length > 0 && (
           <div className="mt-32">
             <h2 className="font-heading text-3xl font-semibold text-primary mb-8 text-center md:text-left">
-              Вам также может понравиться
+              {t('product.similar')}
             </h2>
             <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 md:gap-6">
               {similarProducts.map((p, i) => (
@@ -226,7 +228,7 @@ export default function ProductPage() {
                         {p.name}
                       </h3>
                       <p className="font-semibold text-primary mt-1 text-sm">
-                        {formatPrice(p.price)}
+                        {formatPrice(getProductPrice(p, currentCountry), currentCountry)}
                       </p>
                     </div>
                   </Link>

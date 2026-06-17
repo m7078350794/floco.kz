@@ -7,8 +7,10 @@ import { useRegionStore } from '@/store/regionStore';
 import { getProductPrice, getProductOldPrice } from '@/lib/price';
 import { formatPrice } from '@/lib/formatters';
 import type { Product } from '@/types';
+import { useTranslation } from 'react-i18next';
 
 export default function PopularBouquets() {
+  const { t } = useTranslation();
   const products = useProductStore((s) => s.products);
   const currentCountry = useRegionStore((s) => s.country);
   const popular = products.filter((p) => p.isPopular && p.inStock).slice(0, 6);
@@ -28,17 +30,17 @@ export default function PopularBouquets() {
         >
           <div>
             <h2 className="font-heading text-3xl md:text-5xl font-semibold text-primary">
-              Популярное
+              {t('home.popular.title')}
             </h2>
             <p className="text-text-secondary mt-2 text-sm md:text-base">
-              Букеты, которые выбирают чаще всего
+              {t('home.popular.subtitle')}
             </p>
           </div>
           <Link
             to="/catalog"
             className="hidden sm:inline-flex items-center gap-1.5 text-sm font-medium text-text-secondary hover:text-primary transition-colors group"
           >
-            Смотреть все
+            {t('home.popular.viewAll')}
             <svg className="w-4 h-4 transition-transform group-hover:translate-x-1" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
               <path strokeLinecap="round" strokeLinejoin="round" d="M9 5l7 7-7 7" />
             </svg>
@@ -58,7 +60,7 @@ export default function PopularBouquets() {
             to="/catalog"
             className="inline-flex items-center gap-1.5 text-sm font-medium text-text-secondary hover:text-primary transition-colors"
           >
-            Смотреть все
+            {t('home.popular.viewAll')}
             <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
               <path strokeLinecap="round" strokeLinejoin="round" d="M9 5l7 7-7 7" />
             </svg>
@@ -70,6 +72,7 @@ export default function PopularBouquets() {
 }
 
 function ProductCard({ product, index }: { product: Product; index: number }) {
+  const { t } = useTranslation();
   const addItem = useCartStore((s) => s.addItem);
   const currentCountry = useRegionStore((s) => s.country);
   const { open } = useCartDrawer();
@@ -117,7 +120,7 @@ function ProductCard({ product, index }: { product: Product; index: number }) {
               onClick={handleAddToCart}
               className="w-full py-3 bg-primary text-white text-sm font-medium rounded-xl hover:bg-primary-hover transition-colors cursor-pointer btn-shine"
             >
-              Заказать
+              {t('product.order')}
             </motion.button>
           </div>
         </div>

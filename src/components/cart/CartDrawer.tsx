@@ -5,8 +5,10 @@ import { useCartDrawer } from './CartDrawerProvider';
 import { useRegionStore } from '@/store/regionStore';
 import { getProductPrice } from '@/lib/price';
 import { formatPrice } from '@/lib/formatters';
+import { useTranslation } from 'react-i18next';
 
 export default function CartDrawer() {
+  const { t } = useTranslation();
   const { isOpen, close } = useCartDrawer();
   const { items, removeItem, updateQuantity, getTotal, getItemCount } = useCartStore();
   const currentCountry = useRegionStore((s) => s.country);
@@ -37,7 +39,7 @@ export default function CartDrawer() {
           >
             {/* Header */}
             <div className="flex items-center justify-between px-6 py-5 border-b border-border">
-              <h2 className="font-heading text-2xl font-semibold">Ваш заказ</h2>
+              <h2 className="font-heading text-2xl font-semibold">{t('checkout.summary.title')}</h2>
               <button
                 onClick={close}
                 className="p-2 -mr-2 text-text-secondary hover:text-primary transition-colors cursor-pointer"
@@ -58,8 +60,8 @@ export default function CartDrawer() {
                       <path strokeLinecap="round" strokeLinejoin="round" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z" />
                     </svg>
                   </div>
-                  <p className="text-text-secondary text-sm mb-1">Корзина пуста</p>
-                  <p className="text-text-muted text-xs">Добавьте букеты из каталога</p>
+                  <p className="text-text-secondary text-sm mb-1">{t('cart.empty')}</p>
+                  <p className="text-text-muted text-xs">{t('cart.emptyDesc')}</p>
                 </div>
               ) : (
                 <div className="space-y-4">
@@ -130,7 +132,7 @@ export default function CartDrawer() {
             {items.length > 0 && (
               <div className="border-t border-border px-6 py-5 space-y-4">
                 <div className="flex items-center justify-between font-semibold text-lg text-primary mb-6">
-                  <span>Итого</span>
+                  <span>{t('checkout.summary.total')}</span>
                   <span>{formatPrice(getTotal(currentCountry), currentCountry)}</span>
                 </div>
                 <Link
@@ -138,7 +140,7 @@ export default function CartDrawer() {
                   onClick={close}
                   className="block w-full py-4 bg-primary text-white text-center font-medium rounded-[var(--radius-button)] hover:bg-primary-hover transition-colors btn-shine"
                 >
-                  Оформить заказ
+                  {t('cart.checkout')}
                 </Link>
               </div>
             )}

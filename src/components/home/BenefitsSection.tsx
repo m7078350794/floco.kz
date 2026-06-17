@@ -1,6 +1,6 @@
-import { motion } from 'framer-motion';
-import { useInView } from 'framer-motion';
+import { motion, useInView } from 'framer-motion';
 import { useRef } from 'react';
+import { useTranslation } from 'react-i18next';
 
 const benefits = [
   {
@@ -43,6 +43,7 @@ const benefits = [
 ];
 
 export default function BenefitsSection() {
+  const { t } = useTranslation();
   const ref = useRef(null);
   const isInView = useInView(ref, { once: true, margin: '-100px' });
 
@@ -56,10 +57,10 @@ export default function BenefitsSection() {
           className="text-center mb-14"
         >
           <h2 className="font-heading text-3xl md:text-4xl lg:text-5xl font-semibold text-navy mb-3">
-            Почему FLOCO?
+            {t('home.benefits.title')}
           </h2>
           <p className="text-text-secondary max-w-lg mx-auto">
-            Мы создаём незабываемые эмоции через цветы
+            {t('home.benefits.subtitle')}
           </p>
         </motion.div>
 
