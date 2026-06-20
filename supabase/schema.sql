@@ -26,6 +26,10 @@ CREATE TABLE IF NOT EXISTS public.products (
     is_featured BOOLEAN DEFAULT false,
     in_stock BOOLEAN DEFAULT true,
     is_new BOOLEAN DEFAULT false,
+    prices JSONB DEFAULT '{}'::jsonb,
+    old_prices JSONB DEFAULT '{}'::jsonb,
+    tags JSONB DEFAULT '[]'::jsonb,
+    cities JSONB DEFAULT '["almaty", "astana", "tashkent", "bishkek", "dushanbe"]'::jsonb,
     created_at TIMESTAMP WITH TIME ZONE DEFAULT timezone('utc'::text, now()) NOT NULL,
     updated_at TIMESTAMP WITH TIME ZONE DEFAULT timezone('utc'::text, now()) NOT NULL
 );
@@ -50,6 +54,7 @@ CREATE TABLE IF NOT EXISTS public.settings (
     id INTEGER PRIMARY KEY DEFAULT 1,
     whatsapp_phone TEXT NOT NULL DEFAULT '77001234567',
     instagram_url TEXT NOT NULL DEFAULT 'https://www.instagram.com/floco.ala/',
+    telegram_url TEXT,
     shop_name TEXT NOT NULL DEFAULT 'FLOCO',
     shop_address TEXT NOT NULL DEFAULT 'г. Алматы',
     shop_city TEXT NOT NULL DEFAULT 'Алматы',

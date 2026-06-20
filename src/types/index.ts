@@ -67,6 +67,7 @@ export interface Review {
 export interface Settings {
   whatsappPhone: string;
   instagramUrl: string;
+  telegramUrl?: string;
   shopName: string;
   shopAddress: string;
   shopCity: string;

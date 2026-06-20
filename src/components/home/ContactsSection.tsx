@@ -15,6 +15,7 @@ export default function ContactsSection() {
   const instagramLink = settings?.instagramUrl || 'https://www.instagram.com/floco.ala/';
   const workingHours = settings?.workingHours || 'Ежедневно 09:00 — 21:00';
   const instagramHandle = settings?.instagramUrl ? `@${settings.instagramUrl.split('/').filter(Boolean).pop()}` : '@floco.ala';
+  const telegramHandle = settings?.telegramUrl ? `@${settings.telegramUrl.split('/').filter(Boolean).pop()}` : '@floco_tashkent';
 
   return (
     <section className="py-20 md:py-28 bg-surface" id="contacts" ref={ref}>
@@ -35,7 +36,7 @@ export default function ContactsSection() {
           initial={{ opacity: 0, y: 20 }}
           animate={isInView ? { opacity: 1, y: 0 } : {}}
           transition={{ duration: 0.6, delay: 0.2 }}
-          className="grid grid-cols-1 md:grid-cols-3 gap-6"
+          className={`grid grid-cols-1 ${city === 'tashkent' ? 'md:grid-cols-4' : 'md:grid-cols-3'} gap-6`}
         >
           <a
             href={whatsappLink}
@@ -66,6 +67,23 @@ export default function ContactsSection() {
             <h3 className="font-heading text-lg font-semibold text-navy mb-1">Instagram</h3>
             <p className="text-sm text-text-secondary">{instagramHandle}</p>
           </a>
+
+          {city === 'tashkent' && (
+            <a
+              href={settings?.telegramUrl || "https://t.me/floco_tashkent"}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="flex flex-col items-center p-8 rounded-[var(--radius-card)] bg-cream/50 hover:bg-cream transition-colors duration-300 group"
+            >
+              <div className="w-14 h-14 rounded-full bg-[#0088cc]/10 text-[#0088cc] flex items-center justify-center mb-4 group-hover:bg-[#0088cc] group-hover:text-white transition-all duration-300">
+                <svg className="w-7 h-7" fill="currentColor" viewBox="0 0 24 24">
+                  <path d="M12 0C5.373 0 0 5.373 0 12s5.373 12 12 12 12-5.373 12-12S18.627 0 12 0zm5.894 8.221l-1.97 9.28c-.145.658-.537.818-1.084.508l-3-2.21-1.446 1.394c-.14.18-.357.223-.548.223l.188-2.85 5.18-4.686c.223-.195-.054-.306-.346-.112l-6.4 4.027-2.76-.864c-.6-.188-.612-.6.126-.89l10.78-4.155c.498-.184.94.11.78.335z"/>
+                </svg>
+              </div>
+              <h3 className="font-heading text-lg font-semibold text-navy mb-1">Telegram</h3>
+              <p className="text-sm text-text-secondary">{telegramHandle}</p>
+            </a>
+          )}
 
           <div className="flex flex-col items-center p-8 rounded-[var(--radius-card)] bg-cream/50">
             <div className="w-14 h-14 rounded-full bg-navy/5 text-navy flex items-center justify-center mb-4">

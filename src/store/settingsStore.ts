@@ -23,6 +23,7 @@ function mapDbToSettings(row: any, categories: any[]): Settings {
   return {
     whatsappPhone: row.whatsapp_phone,
     instagramUrl: row.instagram_url,
+    telegramUrl: row.telegram_url,
     shopName: row.shop_name,
     shopAddress: row.shop_address,
     shopCity: row.shop_city,
@@ -106,6 +107,7 @@ export const useSettingsStore = create<SettingsState>()((set, get) => ({
     const { error } = await supabase.from('settings').update({
       whatsapp_phone: data.whatsappPhone,
       instagram_url: data.instagramUrl,
+      telegram_url: data.telegramUrl,
       shop_address: data.shopAddress,
       working_hours: data.workingHours,
       delivery_info: data.deliveryInfo,

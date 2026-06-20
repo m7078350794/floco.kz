@@ -517,6 +517,7 @@ const settingsSchema = z.object({
   workingHours: z.string().min(1, 'Обязательное поле'),
   deliveryInfo: z.string().min(1, 'Обязательное поле'),
   instagramUrl: z.string().url('Введите корректную ссылку').or(z.string().length(0)).optional(),
+  telegramUrl: z.string().url('Введите корректную ссылку').or(z.string().length(0)).optional(),
 });
 
 function SettingsTab({
@@ -571,6 +572,7 @@ function SettingsBlock({ city, settings, onUpdate }: any) {
       workingHours: settings.workingHours || '',
       deliveryInfo: settings.deliveryInfo || '',
       instagramUrl: settings.instagramUrl || '',
+      telegramUrl: settings.telegramUrl || '',
     }
   });
 
@@ -596,6 +598,13 @@ function SettingsBlock({ city, settings, onUpdate }: any) {
           error={errors.instagramUrl?.message}
           placeholder="https://instagram.com/floco.kz"
           id={`set-inst-${city.id}`}
+        />
+        <Input
+          label="Ссылка на Telegram"
+          {...register('telegramUrl')}
+          error={errors.telegramUrl?.message}
+          placeholder="https://t.me/floco_tashkent"
+          id={`set-tg-${city.id}`}
         />
         <Input
           label="Адрес магазина"
